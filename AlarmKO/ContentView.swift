@@ -8,15 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
+    @AppStorage("hasSeenOnboarding") var hasSeenOnboarding = false
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
+        if hasSeenOnboarding {
+            MainView()
+        } else {
+            OnboardingView(hasSeenOnboarding: $hasSeenOnboarding)
+        }    }
 }
 
 #Preview {
