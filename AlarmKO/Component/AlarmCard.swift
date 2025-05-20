@@ -58,7 +58,9 @@ struct AlarmCard: View {
     @Previewable @State var sampleAlarm = Alarm(
             time: Date(),
             alarmRepeat: "Never",
+            label: "Alarm",
             game: "Punching",
+            sound: "",
             isActive: true
         )
 

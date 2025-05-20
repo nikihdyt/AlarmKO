@@ -9,9 +9,10 @@ import SwiftUI
 
 struct MainView: View {
     @State private var alarms: [Alarm] = [
-        Alarm(time: Date(), alarmRepeat: "Never", game: "Punching", isActive: true),
-        Alarm(time: Date().addingTimeInterval(3600), alarmRepeat: "Every Day", game: "Punching", isActive: false)
+        Alarm(time: Date(), alarmRepeat: "Never", label: "alarm", game: "Punching", sound: "", isActive: true),
+        Alarm(time: Date().addingTimeInterval(3600), alarmRepeat: "Every Day", label: "", game: "Punching", sound: "", isActive: false)
     ]
+    @State private var isAddingAlarm: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -21,7 +22,7 @@ struct MainView: View {
                 
                 VStack {
                     Button(action: {
-                        print("Button tapped!")
+                        isAddingAlarm = true
                     }) {
                         Image(systemName: "plus")
                             .foregroundColor(.white)
@@ -46,8 +47,12 @@ struct MainView: View {
                     }
                     .listStyle(PlainListStyle())
                     .background(Color.black.ignoresSafeArea())
-                    
+                    .padding(.top, -10)
                 }
+            }
+            .background(.black)
+            .sheet(isPresented: $isAddingAlarm) {
+                AddAlarmView()
             }
         }
     }
