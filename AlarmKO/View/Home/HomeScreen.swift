@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct MainView: View {
+struct HomeScreen: View {
     @Environment(\.modelContext) var modelContext
     @Query private var alarms: [Alarm]
     @State private var selectedAlarm: Alarm? = nil
@@ -64,5 +64,5 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView()
+    HomeScreen()
 }

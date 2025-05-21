@@ -194,6 +194,17 @@ struct AddAlarmView: View {
                         sound = existingAlarm.sound
                     }
                 }
+                .onChange(of: alarmRepeat) { newValue in
+                    alarm?.alarmRepeat = newValue
+                }
+
+                .onChange(of: game) { newValue in
+                    alarm?.game = newValue
+                }
+
+                .onChange(of: sound) { newValue in
+                    alarm?.sound = newValue
+                }
             }
         }
         .tint(.white)

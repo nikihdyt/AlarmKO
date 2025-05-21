@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+struct OnboardingPage: Identifiable {
+    let id: Int = 0
+    let title: String
+    let subtitle: String
+    let image: String
+}
+
 struct OnboardingView: View {
     @Binding var hasSeenOnboarding: Bool
     @State var currentPage: Int = 0

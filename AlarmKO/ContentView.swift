@@ -12,7 +12,7 @@ struct ContentView: View {
     
     var body: some View {
         if hasSeenOnboarding {
-            MainView()
+            HomeScreen()
         } else {
             OnboardingView(hasSeenOnboarding: $hasSeenOnboarding)
         }

@@ -33,6 +33,7 @@ struct AlarmSettingItemView: View {
                         ForEach(options, id: \.self) { option in
                             Button {
                                 selectedOption = option
+                                print(selectedOption)
                                 dismiss()
                             } label: {
                                 Text(option)
