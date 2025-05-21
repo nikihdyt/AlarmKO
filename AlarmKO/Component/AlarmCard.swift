@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct AlarmCard: View {
-    @Binding var alarm: Alarm
+    @Environment(\.modelContext) var modelContext
+    @Bindable var alarm: Alarm
     
     var body: some View {
         ZStack {
@@ -21,11 +22,15 @@ struct AlarmCard: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         HStack(alignment: VerticalAlignment.center) {
-                            Button(action: { }) {
+                            Button(action: {
+                                modelContext.delete(alarm)
+                                print("deleteeeeee")
+                            }) {
                                 Image("ic_trash")
                                     .resizable()
                                     .frame(width: 24, height: 24)
                             }
+                            .buttonStyle(.plain)
                             
                             Text(alarm.time.formatted(date: .omitted, time: .shortened))
                                 .font(.system(size: 36))
@@ -55,7 +60,7 @@ struct AlarmCard: View {
 }
 
 #Preview {
-    @Previewable @State var sampleAlarm = Alarm(
+    @Previewable var sampleAlarm = Alarm(
             time: Date(),
             alarmRepeat: "Never",
             label: "Alarm",
@@ -64,5 +69,5 @@ struct AlarmCard: View {
             isActive: true
         )
 
-    AlarmCard(alarm: $sampleAlarm)
+    AlarmCard(alarm: sampleAlarm)
 }

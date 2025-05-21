@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct AlarmKOApp: App {
@@ -13,6 +14,7 @@ struct AlarmKOApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: Alarm.self)
     }
 }
 

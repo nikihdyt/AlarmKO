@@ -6,12 +6,12 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MainView: View {
-    @State private var alarms: [Alarm] = [
-        Alarm(time: Date(), alarmRepeat: "Never", label: "alarm", game: "Punching", sound: "", isActive: true),
-        Alarm(time: Date().addingTimeInterval(3600), alarmRepeat: "Every Day", label: "", game: "Punching", sound: "", isActive: false)
-    ]
+    @Environment(\.modelContext) var modelContext
+    @Query private var alarms: [Alarm]
+    @State private var selectedAlarm: Alarm? = nil
     @State private var showSheet: Bool = false
     
     var body: some View {
@@ -22,6 +22,7 @@ struct MainView: View {
                 
                 VStack {
                     Button(action: {
+                        selectedAlarm = nil
                         showSheet = true
                     }) {
                         Image(systemName: "plus")
@@ -38,12 +39,13 @@ struct MainView: View {
                         .padding(.leading, 10)
                     
                     List {
-                        ForEach($alarms) { $alarm in
-                            AlarmCard(alarm: $alarm)
+                        ForEach(alarms) { alarm in
+                            AlarmCard(alarm: alarm)
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .onTapGesture {
+                                    selectedAlarm = alarm
                                     showSheet = true
                                 }
                         }
@@ -55,7 +57,7 @@ struct MainView: View {
             }
             .background(.black)
             .sheet(isPresented: $showSheet) {
-                AddAlarmView()
+                AddAlarmView(alarm: $selectedAlarm)
             }
         }
     }

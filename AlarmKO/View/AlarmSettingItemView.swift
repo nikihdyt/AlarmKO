@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AlarmSettingItemView: View {
+    @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
     let title: String
     @Binding var selectedOption: String
@@ -40,7 +41,6 @@ struct AlarmSettingItemView: View {
                             .listRowBackground(Color(0x2C322E))
                             .buttonStyle(.plain)
                         }
-                        
                     }
                 }
                 .listStyle(.plain)
