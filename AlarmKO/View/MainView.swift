@@ -12,7 +12,7 @@ struct MainView: View {
         Alarm(time: Date(), alarmRepeat: "Never", label: "alarm", game: "Punching", sound: "", isActive: true),
         Alarm(time: Date().addingTimeInterval(3600), alarmRepeat: "Every Day", label: "", game: "Punching", sound: "", isActive: false)
     ]
-    @State private var isAddingAlarm: Bool = false
+    @State private var showSheet: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -22,7 +22,7 @@ struct MainView: View {
                 
                 VStack {
                     Button(action: {
-                        isAddingAlarm = true
+                        showSheet = true
                     }) {
                         Image(systemName: "plus")
                             .foregroundColor(.white)
@@ -43,6 +43,9 @@ struct MainView: View {
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
                                 .frame(maxWidth: .infinity, alignment: .center)
+                                .onTapGesture {
+                                    showSheet = true
+                                }
                         }
                     }
                     .listStyle(PlainListStyle())
@@ -51,7 +54,7 @@ struct MainView: View {
                 }
             }
             .background(.black)
-            .sheet(isPresented: $isAddingAlarm) {
+            .sheet(isPresented: $showSheet) {
                 AddAlarmView()
             }
         }
