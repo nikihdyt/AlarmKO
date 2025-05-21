@@ -6,6 +6,22 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8186B9312DDD566000ED1358 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8186B9262DDD566000ED1358 /* Preview Assets.xcassets */; };
+		8186B9322DDD566000ED1358 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8186B92E2DDD566000ED1358 /* Assets.xcassets */; };
+		8186B9332DDD566000ED1358 /* AlarmCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B9212DDD566000ED1358 /* AlarmCard.swift */; };
+		8186B9342DDD566000ED1358 /* Alarm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B9232DDD566000ED1358 /* Alarm.swift */; };
+		8186B9352DDD566000ED1358 /* Onboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B9242DDD566000ED1358 /* Onboarding.swift */; };
+		8186B9362DDD566000ED1358 /* AddAlarmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B9282DDD566000ED1358 /* AddAlarmView.swift */; };
+		8186B9372DDD566000ED1358 /* AlarmSettingItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B9292DDD566000ED1358 /* AlarmSettingItemView.swift */; };
+		8186B9382DDD566000ED1358 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B92A2DDD566000ED1358 /* MainView.swift */; };
+		8186B9392DDD566000ED1358 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B92B2DDD566000ED1358 /* OnboardingView.swift */; };
+		8186B93A2DDD566000ED1358 /* AlarmKOApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B92D2DDD566000ED1358 /* AlarmKOApp.swift */; };
+		8186B93B2DDD566000ED1358 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B92F2DDD566000ED1358 /* ContentView.swift */; };
+		8186B93E2DDD5D1A00ED1358 /* PunchTrackerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B93D2DDD5D1A00ED1358 /* PunchTrackerScreen.swift */; };
+		8186B9432DDD60AC00ED1358 /* View+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8186B9422DDD60AC00ED1358 /* View+Helpers.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		203F797D2DDABF8C007EFAF3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,14 +43,22 @@
 		203F796C2DDABF8A007EFAF3 /* AlarmKO.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlarmKO.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		203F797C2DDABF8C007EFAF3 /* AlarmKOTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AlarmKOTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		203F79862DDABF8C007EFAF3 /* AlarmKOUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AlarmKOUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8186B9212DDD566000ED1358 /* AlarmCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmCard.swift; sourceTree = "<group>"; };
+		8186B9232DDD566000ED1358 /* Alarm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alarm.swift; sourceTree = "<group>"; };
+		8186B9242DDD566000ED1358 /* Onboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Onboarding.swift; sourceTree = "<group>"; };
+		8186B9262DDD566000ED1358 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		8186B9282DDD566000ED1358 /* AddAlarmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAlarmView.swift; sourceTree = "<group>"; };
+		8186B9292DDD566000ED1358 /* AlarmSettingItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmSettingItemView.swift; sourceTree = "<group>"; };
+		8186B92A2DDD566000ED1358 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		8186B92B2DDD566000ED1358 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		8186B92D2DDD566000ED1358 /* AlarmKOApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmKOApp.swift; sourceTree = "<group>"; };
+		8186B92E2DDD566000ED1358 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8186B92F2DDD566000ED1358 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8186B93D2DDD5D1A00ED1358 /* PunchTrackerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PunchTrackerScreen.swift; sourceTree = "<group>"; };
+		8186B9422DDD60AC00ED1358 /* View+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Helpers.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		203F796E2DDABF8A007EFAF3 /* AlarmKO */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = AlarmKO;
-			sourceTree = "<group>";
-		};
 		203F797F2DDABF8C007EFAF3 /* AlarmKOTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = AlarmKOTests;
@@ -75,7 +99,7 @@
 		203F79632DDABF8A007EFAF3 = {
 			isa = PBXGroup;
 			children = (
-				203F796E2DDABF8A007EFAF3 /* AlarmKO */,
+				8186B9302DDD566000ED1358 /* AlarmKO */,
 				203F797F2DDABF8C007EFAF3 /* AlarmKOTests */,
 				203F79892DDABF8C007EFAF3 /* AlarmKOUITests */,
 				203F796D2DDABF8A007EFAF3 /* Products */,
@@ -92,6 +116,74 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8186B9222DDD566000ED1358 /* Component */ = {
+			isa = PBXGroup;
+			children = (
+				8186B9212DDD566000ED1358 /* AlarmCard.swift */,
+			);
+			path = Component;
+			sourceTree = "<group>";
+		};
+		8186B9252DDD566000ED1358 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				8186B9232DDD566000ED1358 /* Alarm.swift */,
+				8186B9242DDD566000ED1358 /* Onboarding.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		8186B9272DDD566000ED1358 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				8186B9262DDD566000ED1358 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		8186B92C2DDD566000ED1358 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				8186B93C2DDD58D300ED1358 /* Game */,
+				8186B9282DDD566000ED1358 /* AddAlarmView.swift */,
+				8186B9292DDD566000ED1358 /* AlarmSettingItemView.swift */,
+				8186B92A2DDD566000ED1358 /* MainView.swift */,
+				8186B92B2DDD566000ED1358 /* OnboardingView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		8186B9302DDD566000ED1358 /* AlarmKO */ = {
+			isa = PBXGroup;
+			children = (
+				8186B9412DDD60A500ED1358 /* Helpers */,
+				8186B9222DDD566000ED1358 /* Component */,
+				8186B9252DDD566000ED1358 /* Model */,
+				8186B9272DDD566000ED1358 /* Preview Content */,
+				8186B92C2DDD566000ED1358 /* View */,
+				8186B92D2DDD566000ED1358 /* AlarmKOApp.swift */,
+				8186B92E2DDD566000ED1358 /* Assets.xcassets */,
+				8186B92F2DDD566000ED1358 /* ContentView.swift */,
+			);
+			path = AlarmKO;
+			sourceTree = "<group>";
+		};
+		8186B93C2DDD58D300ED1358 /* Game */ = {
+			isa = PBXGroup;
+			children = (
+				8186B93D2DDD5D1A00ED1358 /* PunchTrackerScreen.swift */,
+			);
+			path = Game;
+			sourceTree = "<group>";
+		};
+		8186B9412DDD60A500ED1358 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				8186B9422DDD60AC00ED1358 /* View+Helpers.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -106,9 +198,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				203F796E2DDABF8A007EFAF3 /* AlarmKO */,
 			);
 			name = AlarmKO;
 			packageProductDependencies = (
@@ -212,6 +301,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8186B9312DDD566000ED1358 /* Preview Assets.xcassets in Resources */,
+				8186B9322DDD566000ED1358 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +327,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8186B9332DDD566000ED1358 /* AlarmCard.swift in Sources */,
+				8186B9342DDD566000ED1358 /* Alarm.swift in Sources */,
+				8186B9352DDD566000ED1358 /* Onboarding.swift in Sources */,
+				8186B93E2DDD5D1A00ED1358 /* PunchTrackerScreen.swift in Sources */,
+				8186B9362DDD566000ED1358 /* AddAlarmView.swift in Sources */,
+				8186B9372DDD566000ED1358 /* AlarmSettingItemView.swift in Sources */,
+				8186B9382DDD566000ED1358 /* MainView.swift in Sources */,
+				8186B9392DDD566000ED1358 /* OnboardingView.swift in Sources */,
+				8186B9432DDD60AC00ED1358 /* View+Helpers.swift in Sources */,
+				8186B93A2DDD566000ED1358 /* AlarmKOApp.swift in Sources */,
+				8186B93B2DDD566000ED1358 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
