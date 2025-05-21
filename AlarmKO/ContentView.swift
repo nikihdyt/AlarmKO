@@ -15,7 +15,8 @@ struct ContentView: View {
             MainView()
         } else {
             OnboardingView(hasSeenOnboarding: $hasSeenOnboarding)
-        }    }
+        }
+    }
 }
 
 #Preview {
