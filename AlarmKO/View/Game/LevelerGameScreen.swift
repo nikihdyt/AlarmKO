@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 struct LevelerGameScreen: View {
-    @StateObject private var motion = MotionManager()
+    @StateObject private var motion = LevelerMotionManager()
     @StateObject private var gameState = GameState()
     @State private var collisionTimer: Timer?
     @State private var showingTutorial = true

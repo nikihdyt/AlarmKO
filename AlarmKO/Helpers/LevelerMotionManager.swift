@@ -8,7 +8,7 @@ import CoreMotion
 import Foundation
 import Combine
 
-class MotionManager: ObservableObject {
+class LevelerMotionManager: ObservableObject {
     private var motionManager = CMMotionManager()
     @Published var pitch: Double = 0.0
     @Published var roll: Double = 0.0
