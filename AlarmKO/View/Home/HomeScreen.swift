@@ -10,78 +10,78 @@ import SwiftData
 import AVFoundation
 
 struct HomeScreen: View {
+    
+    let dummyAlarm = [
+        Alarm(id: UUID(), time: Date.now, alarmRepeat: "Every Day", label: "Alarm but the name is long", game: "Punch", sound: "alarm.wav", isActive: false),
+        Alarm(id: UUID(), time: Date.now, alarmRepeat: "Every Day", label: "Alarm 2", game: "Punch", sound: "alarm.wav", isActive: false),
+        Alarm(id: UUID(), time: Date.now, alarmRepeat: "Every Day", label: "Alarm 3", game: "Punch", sound: "alarm.wav", isActive: false),
+    ]
+    
     @Environment(\.modelContext) var modelContext
     @Query private var alarms: [Alarm]
+    
     @State private var selectedAlarm: Alarm? = nil
     @State private var showSheet: Bool = false
-    
     @State private var alarmSet = false
     @State private var audioPlayer: AVAudioPlayer?
+    
     @StateObject private var viewModel = HomeViewModel()
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.black
-                    .ignoresSafeArea()
-                
-                VStack {
-                    Button(action: {
-                        selectedAlarm = nil
-                        showSheet = true
-                    }) {
-                        Image(systemName: "plus")
-                            .foregroundColor(.white)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.trailing, 12)
-                    
-                    Text("Alarms")
-                        .font(.system(size: 36, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(width: 153, height: 71)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 10)
-                    
-                    List {
-                        ForEach(alarms) { alarm in
-                            AlarmCardView(alarm: alarm)
-                                .listRowSeparator(.hidden)
-                                .listRowBackground(Color.clear)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .onTapGesture {
-                                    selectedAlarm = alarm
-                                    showSheet = true
-                                }
-                        }
-                    }
-                    .listStyle(PlainListStyle())
-                    .background(Color.black.ignoresSafeArea())
-                    .padding(.top, -10)
+            if alarms.isEmpty {
+                VStack(alignment: .center) {
+                    Spacer()
+                    Text("Use the \"+\" button to add an alarm.")
                 }
             }
-            .background(.black)
+            
+            LazyVStack {
+                ForEach(alarms) { alarm in
+                    AlarmCardView(alarm: alarm)
+                        .padding(.horizontal, 2)
+                        .onTapGesture {
+                            selectedAlarm = alarm
+                            showSheet = true
+                        }
+                }
+            }
+            .vSpacing(.top)
+            .padding(.horizontal, 20)
+            .navigationTitle("Alarms")
+            .toolbar {
+                ToolbarItem {
+                    Button {
+                        selectedAlarm = nil
+                        showSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                    }
+                }
+            }
             .sheet(isPresented: $showSheet) {
                 AddAlarmView(alarm: $selectedAlarm)
             }
         }
     }
     
+    /// Alarm Card
     @ViewBuilder
     private func AlarmCardView(alarm: Alarm) -> some View {
         ZStack {
             Image("bg_alarm_card")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 350, height: 100)
             
             HStack {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        HStack(alignment: VerticalAlignment.center) {
-                            Button(action: {
+                        HStack {
+                            Button {
                                 modelContext.delete(alarm)
-                            }) {
+                            } label: {
                                 Image("ic_trash")
                                     .resizable()
                                     .frame(width: 24, height: 24)
@@ -89,24 +89,18 @@ struct HomeScreen: View {
                             .buttonStyle(.plain)
                             
                             Text(alarm.time.formatted(date: .omitted, time: .shortened))
-                                .font(.system(size: 36))
-                                .bold()
+                                .font(.title.bold())
                                 .foregroundColor(.white)
                         }
                     }
-                    .padding(.top, 15.5)
-                    .padding(.bottom, -5)
                     
-                    Text("\(alarm.game) | \(alarm.alarmRepeat)")
-                        .font(.system(size: 16)
-                        .weight(.light))
+                    Text("\(alarm.label) | \(alarm.alarmRepeat)")
                         .foregroundColor(.white)
-                        .padding(.bottom, 20)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .lineLimit(1)
                 }
-                .padding(.leading, 20)
+                .hSpacing(.leading)
                 
-                Toggle("", isOn: Binding(
+                Toggle(isOn: Binding(
                     get: { alarm.isActive },
                     set: { newValue in
                         alarm.isActive = newValue
@@ -119,12 +113,14 @@ struct HomeScreen: View {
                             viewModel.cancelScheduleAlarm()
                             print("Alarm canceled")
                         }
-                    }))
-                    .toggleStyle(SwitchToggleStyle(tint: Color(0xDBF173)))
-                    .padding(.trailing, 38)
+                    })
+                ) { }
+                    .toggleStyle(SwitchToggleStyle(tint: Color("prim")))
+                    .padding(.leading, 4)
+                    .fixedSize()
             }
+            .padding(.horizontal, 20)
         }
-        .frame(width: 350, height: 100)
         .onAppear {
             viewModel.setupAudioSession()
             viewModel.stopWhiteNoise()
@@ -138,4 +134,5 @@ struct HomeScreen: View {
 
 #Preview {
     HomeScreen()
+        .preferredColorScheme(.dark)
 }

@@ -8,10 +8,13 @@
 import SwiftUI
 
 struct AlarmSettingItemView: View {
+    
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
     let title: String
+    
     @Binding var selectedOption: String
+    
     var options: [String] {
         switch title {
         case "Repeat":
@@ -26,45 +29,42 @@ struct AlarmSettingItemView: View {
     }
     
     var body: some View {
-        ZStack {
-            VStack {
-                List {
-                    Section() {
-                        ForEach(options, id: \.self) { option in
-                            Button {
-                                selectedOption = option
-                                print(selectedOption)
-                                dismiss()
-                            } label: {
-                                Text(option)
-                                    .foregroundColor(.white)
-                            }
-                            .listRowBackground(Color(0x2C322E))
-                            .buttonStyle(.plain)
+        VStack {
+            List {
+                Section {
+                    ForEach(options, id: \.self) { option in
+                        Button {
+                            selectedOption = option
+                            print(selectedOption)
+                            dismiss()
+                        } label: {
+                            Text(option)
+                                .foregroundColor(.white)
                         }
                     }
+                    .listRowBackground(Color("dark_green"))
                 }
-                .listStyle(.plain)
-                .background(Color(0x2C322E))
-                .cornerRadius(10)
-                .frame(height: 42 * CGFloat(options.count) + 15)
-                .padding(.horizontal, 15)
-                
-                Spacer()
             }
+            .scrollContentBackground(.hidden)
+            .scrollDisabled(true)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(0x323834))
+        .vSpacing(.top)
+//        .tint(.white)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text(title)
                     .foregroundColor(.white)
-                    .font(.system(size: 17).bold())
+                    .fontWeight(.bold)
             }
+        }
+        .background {
+            Color("seco")
+                .ignoresSafeArea()
         }
     }
 }
 
 #Preview {
     AlarmSettingItemView(title: "Repeat", selectedOption: .constant("Never"))
+        .preferredColorScheme(.dark)
 }

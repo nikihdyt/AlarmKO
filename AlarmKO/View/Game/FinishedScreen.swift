@@ -56,7 +56,7 @@ struct FinishedScreen: View {
                 HStack(spacing: 8) {
                     Text("Top Punch")
                         .fontWeight(.bold)
-                        .foregroundStyle(Color(.primary))
+                        .foregroundStyle(Color("prim"))
                     Spacer()
                     
                     Text("26 G | 929 km/h")
@@ -67,7 +67,7 @@ struct FinishedScreen: View {
                 HStack(spacing: 8) {
                     Text("Wake Up Time")
                         .fontWeight(.bold)
-                        .foregroundStyle(Color(.primary))
+                        .foregroundStyle(Color("prim"))
                     Spacer(minLength: 0)
                     
                     Text("07:00 AM")
@@ -83,7 +83,7 @@ struct FinishedScreen: View {
                     Text("Punching History")
                         .font(.title3)
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color(.primary))
+                        .foregroundStyle(Color("prim"))
                         .padding(15)
                         .background {
                             LinearGradient(colors: [.lightGray, .darkGray.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -122,7 +122,7 @@ struct FinishedScreen: View {
                 Text("76")
                     .font(.system(size: 50))
                     .fontWeight(.bold)
-                    .foregroundStyle(Color(.primary))
+                    .foregroundStyle(Color("prim"))
                 
                 Text("BPM")
                     .font(.title3)
@@ -146,7 +146,7 @@ struct FinishedScreen: View {
                     Text("5")
                         .font(.system(size: 50))
                         .fontWeight(.bold)
-                        .foregroundStyle(Color(.primary))
+                        .foregroundStyle(Color("prim"))
                     
                     Text("hr")
                         .fontWeight(.semibold)
@@ -155,7 +155,7 @@ struct FinishedScreen: View {
                     Text("40")
                         .font(.system(size: 50))
                         .fontWeight(.bold)
-                        .foregroundStyle(Color(.primary))
+                        .foregroundStyle(Color("prim"))
                     
                     Text("min")
                         .fontWeight(.semibold)

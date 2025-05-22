@@ -38,7 +38,7 @@ struct OnboardingView: View {
                     .edgesIgnoringSafeArea(.all)
             }
             
-            VStack() {
+            VStack {
                 Spacer()
                 Image("onboarding_gradient")
                     .resizable()
@@ -46,7 +46,7 @@ struct OnboardingView: View {
                     .edgesIgnoringSafeArea(.all)
             }
             
-            VStack() {
+            VStack {
                 if (currentPage != 0) {
                     HStack {
                         Button(action: {
