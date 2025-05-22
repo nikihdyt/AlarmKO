@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UserNotifications
 
 struct OnboardingPage: Identifiable {
     let id: Int = 0
@@ -120,6 +121,21 @@ struct OnboardingView: View {
                     .tint(Color(0xDBF173))
                     .padding(.top, 20)
                     .padding(.bottom, currentPage == 3 ? 81 : 35)
+            }
+        }
+        .onChange(of: currentPage) { _, newValue in
+            if newValue == 2 {
+                requestNotificationPermission()
+            }
+        }
+    }
+    
+    func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("Error requesting notification permissions: \(error.localizedDescription)")
+            } else {
+                print("Notification permission granted: \(granted)")
             }
         }
     }

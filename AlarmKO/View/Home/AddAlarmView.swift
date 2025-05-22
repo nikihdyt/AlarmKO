@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import AVFoundation
 
 struct AddAlarmView: View {
     @Environment(\.modelContext) var modelContext
@@ -141,6 +142,12 @@ struct AddAlarmView: View {
         }
     }
     
+    private func zeroSeconds(from date: Date) -> Date {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+        return calendar.date(from: components)!
+    }
+    
     private func saveAlarm() {
         if isEditMode, let existingAlarm = alarm {
             existingAlarm.time = time
@@ -150,7 +157,7 @@ struct AddAlarmView: View {
             existingAlarm.sound = sound
         } else {
             let newAlarm = Alarm(
-                time: time,
+                time: zeroSeconds(from: time),
                 alarmRepeat: alarmRepeat,
                 label: label,
                 game: game,
@@ -194,15 +201,13 @@ struct AddAlarmView: View {
                         sound = existingAlarm.sound
                     }
                 }
-                .onChange(of: alarmRepeat) { newValue in
+                .onChange(of: alarmRepeat) { _, newValue in
                     alarm?.alarmRepeat = newValue
                 }
-
-                .onChange(of: game) { newValue in
+                .onChange(of: game) { _, newValue in
                     alarm?.game = newValue
                 }
-
-                .onChange(of: sound) { newValue in
+                .onChange(of: sound) { _, newValue in
                     alarm?.sound = newValue
                 }
             }
