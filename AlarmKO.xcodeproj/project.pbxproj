@@ -30,7 +30,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		20E0FAC72DDEBB5F003566FA /* Exceptions for "AlarmKO" folder in "AlarmKO" target */ = {
+		8186BA082DDED21C00ED1358 /* Exceptions for "AlarmKO" folder in "AlarmKO" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -43,7 +43,7 @@
 		203F796E2DDABF8A007EFAF3 /* AlarmKO */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				20E0FAC72DDEBB5F003566FA /* Exceptions for "AlarmKO" folder in "AlarmKO" target */,
+				8186BA082DDED21C00ED1358 /* Exceptions for "AlarmKO" folder in "AlarmKO" target */,
 			);
 			path = AlarmKO;
 			sourceTree = "<group>";
@@ -409,7 +409,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"AlarmKO/Preview Content\"";
-				DEVELOPMENT_TEAM = 96R2FR52G2;
+				DEVELOPMENT_TEAM = LS68HMX5XZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlarmKO/Info.plist;
@@ -439,7 +439,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"AlarmKO/Preview Content\"";
-				DEVELOPMENT_TEAM = 96R2FR52G2;
+				DEVELOPMENT_TEAM = LS68HMX5XZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlarmKO/Info.plist;
