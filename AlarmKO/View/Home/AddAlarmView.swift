@@ -108,7 +108,7 @@ struct AddAlarmView: View {
             Spacer()
             
             TextField("Label", text: $label)
-                .foregroundColor(Color(.terti))
+                .foregroundColor(Color(.white))
                 .multilineTextAlignment(.trailing)
                 .padding(.leading, 20)
         }
@@ -126,7 +126,7 @@ struct AddAlarmView: View {
                 Spacer()
                 
                 Text(valueForItem(item))
-                    .foregroundColor(Color(.terti))
+                    .foregroundColor(Color(.white))
             }
         }
     }

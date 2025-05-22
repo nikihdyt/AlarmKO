@@ -26,6 +26,7 @@ struct HomeScreen: View {
     @State private var audioPlayer: AVAudioPlayer?
     
     @StateObject private var viewModel = HomeViewModel()
+    @StateObject private var notificationManager = NotificationManager()
     
     var body: some View {
         NavigationStack {
@@ -33,6 +34,17 @@ struct HomeScreen: View {
                 VStack(alignment: .center) {
                     Spacer()
                     Text("Use the \"+\" button to add an alarm.")
+                    Button {
+                        testNotification()
+                    } label: {
+                        Text("Test Notification")
+                            .foregroundStyle(.prim)
+                            .padding()
+                            .background(.darkGreen, in: .rect(cornerRadius: 20))
+                    }
+                }
+                .onAppear {
+                    UNUserNotificationCenter.current().delegate = notificationManager
                 }
             }
             
@@ -64,7 +76,11 @@ struct HomeScreen: View {
             .sheet(isPresented: $showSheet) {
                 AddAlarmView(alarm: $selectedAlarm)
             }
+            .navigationDestination(isPresented: $notificationManager.navigateToGame) {
+                PunchTrackerScreen()
+            }
         }
+        
     }
     
     /// Alarm Card
@@ -129,6 +145,18 @@ struct HomeScreen: View {
                 print("alarm set to \(alarm.time) when card appearing")
             }
         }
+    }
+    
+    func testNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Test Notification"
+        content.subtitle = "This is a test notification 🔔"
+        content.sound = .default
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3, repeats: false)
+        let request = UNNotificationRequest(identifier: "TEST_NOTIFICATION", content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
     }
 }
 

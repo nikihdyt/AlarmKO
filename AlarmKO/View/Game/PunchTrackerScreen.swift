@@ -24,15 +24,15 @@ struct PunchTrackerScreen: View {
         let punchesLeft = max(0, targetPunches - punchesDone)
         
         return [
-            Punches(name: "punchesLeft", amount: punchesLeft),
             Punches(name: "punchesDone", amount: punchesDone),
+            Punches(name: "punchesLeft", amount: punchesLeft),
         ]
     }
     
     // Check if target is reached
-    private var isTargetReached: Bool {
-        motionManager.punches.count >= targetPunches
-    }
+    
+    @State var isTargetReached: Bool = false
+    //    motionManager.punches.count >= targetPunches
     
     var body: some View {
         NavigationStack {
@@ -49,21 +49,21 @@ struct PunchTrackerScreen: View {
                 .hSpacing(.leading)
                 
                 // Success message when target is reached
-                if isTargetReached {
-                    HStack {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                            .font(.title2)
-                        
-                        Text("Target Reached! 🎉")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.green)
-                    }
-                    .padding()
-                    .background(Color.green.opacity(0.1))
-                    .cornerRadius(10)
-                }
+                //                if isTargetReached {
+                //                    HStack {
+                //                        Image(systemName: "checkmark.circle.fill")
+                //                            .foregroundColor(.green)
+                //                            .font(.title2)
+                //
+                //                        Text("Target Reached! 🎉")
+                //                            .font(.title2)
+                //                            .fontWeight(.bold)
+                //                            .foregroundColor(.green)
+                //                    }
+                //                    .padding()
+                //                    .background(Color.green.opacity(0.1))
+                //                    .cornerRadius(10)
+                //                }
                 
                 Spacer(minLength: 0)
                 
@@ -76,26 +76,29 @@ struct PunchTrackerScreen: View {
                 Text("A pro boxer's punch hits with 53-65Gs - that's up to 2,296 km/h of force.")
                     .foregroundStyle(.secondary)
                 
-                // Reset button
-                Button(action: {
-                    motionManager.resetPunches()
-                }) {
-                    Text("Reset Punches")
-                        .font(.title3)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 30)
-                        .padding(.vertical, 12)
-                        .background(Color.red.opacity(0.8))
-                        .cornerRadius(10)
-                }
-                .padding(.top, 10)
-                
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 20)
             .navigationTitle("Punch Tracker")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(isPresented: $isTargetReached) {
+                FinishedScreen()
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button{
+                        motionManager.resetPunches()
+                    } label: {
+                        Text("Reset Punches")
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .onChange(of: motionManager.punches.count) { oldValue, newValue in
+                if newValue >= targetPunches {
+                    isTargetReached = true
+                }
+            }
         }
     }
     
@@ -103,6 +106,7 @@ struct PunchTrackerScreen: View {
     @ViewBuilder
     private func PunchTrackerView(_ punches: [Punches]) -> some View {
         let punchesLeft = punches.first(where: { $0.name == "punchesLeft" })?.amount ?? 0
+        let punchesDone = punches.first(where: { $0.name == "punchesDone" })?.amount ?? 0
         
         VStack(spacing: 20) {
             ZStack {
@@ -112,21 +116,22 @@ struct PunchTrackerScreen: View {
                         .foregroundStyle(self.colorForPunch(punch.name).gradient)
                 }
                 .frame(width: 240, height: 240)
+                .animation(.easeInOut(duration: 0.5), value: punchesDone)
                 
                 // Show punches left in the center
-                Text("\(punchesLeft)")
+                Text("\(punchesDone)")
                     .font(.system(size: 80).bold())
                     .foregroundStyle(.white)
             }
             
             HStack(spacing: 0) {
                 Text("\(punchesLeft)")
-                    .font(.title3)
+                    .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundStyle(Color("Primary"))
+                    .foregroundStyle(Color(.prim))
                 
                 Text(" Punches Left")
-                    .font(.title3)
+                    .font(.title2)
                     .fontWeight(.medium)
                     .foregroundStyle(.white)
             }
@@ -137,9 +142,9 @@ struct PunchTrackerScreen: View {
     private func colorForPunch(_ name: String) -> Color {
         switch name {
         case "punchesLeft":
-            return Color("Primary")
+            return Color(.seco)
         case "punchesDone":
-            return Color("Secondary")
+            return Color(.prim)
         default:
             return .gray
         }
@@ -151,7 +156,7 @@ struct PunchTrackerScreen: View {
         ZStack {
             Image("Acceleration Card")
                 .resizable()
-                .scaledToFill()
+                .scaledToFit()
             
             VStack(alignment: .leading, spacing: 8) {
                 Text("Live Acceleration")
@@ -162,14 +167,14 @@ struct PunchTrackerScreen: View {
                 Text(String(format: "%.2f G", motionManager.latestAcceleration))
                     .font(.largeTitle)
                     .fontWeight(.black)
-                    .foregroundStyle(Color("Primary"))
+                    .foregroundStyle(Color(.prim))
                 
                 HStack(spacing: 0) {
                     // Convert G-force to km/h (using the same conversion as in MotionManager)
                     let kmh = motionManager.latestAcceleration * 35.3
                     Text(String(format: "%.0f", kmh))
                         .font(.title3)
-                        .foregroundStyle(Color("Primary"))
+                        .foregroundStyle(Color(.prim))
                     
                     Text(" km/h")
                         .font(.title3)
@@ -183,6 +188,6 @@ struct PunchTrackerScreen: View {
 }
 
 #Preview {
-    PunchTrackerScreen()
+    PunchTrackerScreen(isTargetReached: false)
         .preferredColorScheme(.dark)
 }
