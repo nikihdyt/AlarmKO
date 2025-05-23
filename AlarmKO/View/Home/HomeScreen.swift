@@ -10,6 +10,7 @@ import SwiftData
 import AVFoundation
 
 struct HomeScreen: View {
+    @AppStorage("isNavigateToGame") var isNavigateToGame: Bool = false
     
     let dummyAlarm = [
         Alarm(id: UUID(), time: Date.now, alarmRepeat: "Every Day", label: "Alarm but the name is long", game: "Punch", sound: "alarm.wav", isActive: false),
@@ -95,7 +96,7 @@ struct HomeScreen: View {
             .sheet(isPresented: $showSheet) {
                 AddAlarmView(alarm: $selectedAlarm)
             }
-            .navigationDestination(isPresented: $viewModel.navigateToPunchingGame) {
+            .navigationDestination(isPresented: $isNavigateToGame) {
                 PunchTrackerScreen()
             }
         }

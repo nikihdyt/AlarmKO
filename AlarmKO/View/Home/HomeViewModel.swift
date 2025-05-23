@@ -11,6 +11,7 @@ final class HomeViewModel: ObservableObject {
     
     final let TAG = "HomeViewModel"
     private var alarmManger = AlarmManager()
+    private var notificationManager = NotificationManager()
     
     func delegate() {
         UNUserNotificationCenter.current().delegate = notificationManager

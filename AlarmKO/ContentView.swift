@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("hasSeenOnboarding") var hasSeenOnboarding = false
+    @AppStorage("isNavigateToGame") var isNavigateToGame = false
     
     var body: some View {
         if hasSeenOnboarding {
