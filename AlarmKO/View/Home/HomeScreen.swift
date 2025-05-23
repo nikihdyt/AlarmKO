@@ -43,11 +43,31 @@ struct HomeScreen: View {
             if alarms.isEmpty {
                 VStack(alignment: .center) {
                     Spacer()
+                    
                     Text("Use the \"+\" button to add an alarm.")
+                    
                     Button {
                         testNotification()
                     } label: {
                         Text("Test Notification")
+                            .foregroundStyle(.prim)
+                            .padding()
+                            .background(.darkGreen, in: .rect(cornerRadius: 20))
+                    }
+                    
+                    NavigationLink {
+                        PunchTrackerScreen()
+                    } label: {
+                        Text("Punching Game")
+                            .foregroundStyle(.prim)
+                            .padding()
+                            .background(.darkGreen, in: .rect(cornerRadius: 20))
+                    }
+                    
+                    NavigationLink {
+                        LevelerGameScreen()
+                    } label: {
+                        Text("Leveler Game")
                             .foregroundStyle(.prim)
                             .padding()
                             .background(.darkGreen, in: .rect(cornerRadius: 20))
