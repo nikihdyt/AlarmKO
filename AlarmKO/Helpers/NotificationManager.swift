@@ -22,8 +22,8 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-            
-        navigateToGameScreen = true
+        
+        UserDefaults.standard.set(true, forKey: "isNavigateToGame")
         cancelScheduleAlarm()
         
         completionHandler()
