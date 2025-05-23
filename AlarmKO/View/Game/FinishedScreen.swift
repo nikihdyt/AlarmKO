@@ -8,19 +8,6 @@
 import SwiftUI
 
 struct FinishedScreen: View {
-    @StateObject var notificationManager = NotificationManager()
-    @StateObject var alarmManager = AlarmManager()
-    @StateObject private var viewModel : GameViewModel
-    
-    init() {
-        let notifManager = NotificationManager()
-        let alarmManager = AlarmManager()
-        
-        _notificationManager = StateObject(wrappedValue: notifManager)
-        _alarmManager = StateObject(wrappedValue: alarmManager)
-        _viewModel = StateObject(wrappedValue: GameViewModel(notificationManager: notifManager, alarmManager: alarmManager))
-    }
-    
     var body: some View {
         NavigationStack {
             VStack(spacing: 15) {
@@ -121,10 +108,6 @@ struct FinishedScreen: View {
                         .ignoresSafeArea()
                 }
             }
-        }
-        .onAppear {
-            print("TODO: cancel alarm")
-            viewModel.stopAlarm()
         }
     }
     

@@ -16,7 +16,7 @@ struct Punches {
 struct PunchTrackerScreen: View {
     @StateObject private var motionManager = PunchingMotionManager()
     
-    private let targetPunches = 4
+    private let targetPunches = 10
     
     // Computed property to get punches data from motion manager
     private var punches: [Punches] {
