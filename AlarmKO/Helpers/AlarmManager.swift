@@ -1,77 +1,110 @@
-//
-//  AlarmManager.swift
-//  AlarmKO
-//
-//  Created by Niki Hidayati on 22/05/25.
-//
-
-
-import UserNotifications
+import Foundation
 import AVFoundation
 
-//class AlarmManager: NSObject, ObservableObject {
-//    static let shared = AlarmManager()
-//    
-//    private var audioPlayer: AVAudioPlayer?
-//    private let notificationCenter = UNUserNotificationCenter.current()
-//    @Published var isAlarmActive = false
-//    
-//    @Published var scheduledAlarms: [String] = []
-//    
-//    override init() {
-//        super.init()
+final class AlarmManager: ObservableObject {
+    
+    private var audioPlayer: AVAudioPlayer?
+    private var whiteNoisePlayer: AVAudioPlayer?
+    private var scheduledWorkItems: [DispatchWorkItem] = []
+    
+    private var isAlarmplaying: Bool = false
+    
+    func setupAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: .mixWithOthers)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Error setting up audio session: \(error.localizedDescription)")
+        }
+    }
+    
+    func playWhiteNoise() {
+        guard let url = Bundle.main.url(forResource: "white_noise", withExtension: "mp3") else {
+            print("White noise file not found")
+            return
+        }
+        do {
+            whiteNoisePlayer = try AVAudioPlayer(contentsOf: url)
+            whiteNoisePlayer?.numberOfLoops = -1
+            whiteNoisePlayer?.prepareToPlay()
+            whiteNoisePlayer?.play()
+        } catch {
+            print("Error playing white noise: \(error.localizedDescription)")
+        }
+    }
+
+    func stopWhiteNoise() {
+        whiteNoisePlayer?.stop()
+    }
+
+    func playSound() {
 //        setupAudioSession()
-//        notificationCenter.delegate = self
-//    }
-//    
-//    private func setupAudioSession() {
-//        do {
-//            try AVAudioSession.sharedInstance().setCategory(
-//                .playback,
-//                mode: .default,
-//                options: [.mixWithOthers, .duckOthers]
-//            )
-//            try AVAudioSession.sharedInstance().setActive(true)
-//        } catch {
-//            print("Audio session error: \(error)")
-//        }
-//    }
-//    
-//    // MARK: - Sound Control
-//    func playSound() {
-//        guard let url = Bundle.main.url(forResource: "alarm2", withExtension: "wav") else { return }
-//        
-//        do {
-//            audioPlayer = try AVAudioPlayer(contentsOf: url)
-//            audioPlayer?.numberOfLoops = -1
-//            audioPlayer?.play()
-//            isAlarmActive = true
-//        } catch {
-//            print("Playback error: \(error)")
-//        }
-//    }
-//    
-//    func stopSound() {
-//        audioPlayer?.stop()
-//    }
-//    
-//}
-//
-//// MARK: - Notification Handling
-//extension AlarmManager: UNUserNotificationCenterDelegate {
-//    func userNotificationCenter(_ center: UNUserNotificationCenter,
-//                                willPresent notification: UNNotification,
-//                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-//        isAlarmActive = true
-//        print("alarm Manager -- userNotificationCenter")
-//        completionHandler([.banner, .sound])
-//    }
-//    
-//    func userNotificationCenter(_ center: UNUserNotificationCenter,
-//                                didReceive response: UNNotificationResponse,
-//                                withCompletionHandler completionHandler: @escaping () -> Void) {
-//        
-//        playSound()
-//        completionHandler()
-//    }
-//}
+        guard let url = Bundle.main.url(forResource: "alarm", withExtension: "wav") else {
+            print("Alarm sound not found")
+            return
+        }
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.prepareToPlay()
+            audioPlayer?.play()
+        } catch {
+            print("Error playing alarm: \(error.localizedDescription)")
+        }
+    }
+
+    func stopSound() {
+        audioPlayer?.stop()
+    }
+    
+    func changeIsAlarmPlayingToTrue(value isa: Bool) {
+        self.isAlarmplaying = isa
+    }
+
+    func scheduleAlarms(at alarmTime: Date, onTrigger: @escaping () -> Void) {
+        cancelAlarms() // Reset existing
+        
+        playWhiteNoise()
+        
+        for i in 0..<10 {
+            let fireTime = Calendar.current.date(byAdding: .second, value: i * 9, to: alarmTime)!
+            let delay = fireTime.timeIntervalSinceNow
+            
+            if delay > 0 {
+                
+                
+                let workItem = DispatchWorkItem {
+//                    if self.isAlarmplaying == true {
+//                        self.stopWhiteNoise()
+//                        self.playSound() 
+//                    }
+                    self.stopWhiteNoise()
+                    self.playSound()
+                    onTrigger()
+                    print("Alarm #\(i) played at \(Date())")
+                }
+                scheduledWorkItems.append(workItem)
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
+            }
+        }
+    }
+
+    func cancelAlarms() {
+        scheduledWorkItems.forEach { $0.cancel() }
+        scheduledWorkItems.removeAll()
+        stopWhiteNoise()
+        stopSound()
+        
+        isAlarmplaying = false
+        print("All local alarms canceled.")
+    }
+    
+    func stopAlarmEffects() {
+        audioPlayer?.stop()
+        audioPlayer = nil
+        
+        whiteNoisePlayer?.stop()
+        whiteNoisePlayer = nil
+    }
+
+}
+

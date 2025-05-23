@@ -49,7 +49,6 @@ struct AlarmSettingItemView: View {
             .scrollDisabled(true)
         }
         .vSpacing(.top)
-//        .tint(.white)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text(title)

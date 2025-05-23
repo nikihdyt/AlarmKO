@@ -25,9 +25,19 @@ struct HomeScreen: View {
     @State private var alarmSet = false
     @State private var audioPlayer: AVAudioPlayer?
     
-    @StateObject private var viewModel = HomeViewModel()
-    @StateObject private var notificationManager = NotificationManager()
+    @StateObject var notificationManager = NotificationManager()
+    @StateObject var alarmManager = AlarmManager()
+    @StateObject private var viewModel : HomeViewModel
     
+    init() {
+        let notifManager = NotificationManager()
+        let alarmManager = AlarmManager()
+        
+        _notificationManager = StateObject(wrappedValue: notifManager)
+        _alarmManager = StateObject(wrappedValue: alarmManager)
+        _viewModel = StateObject(wrappedValue: HomeViewModel(notificationManager: notifManager, alarmManager: alarmManager))
+    }
+
     var body: some View {
         NavigationStack {
             if alarms.isEmpty {
@@ -79,6 +89,10 @@ struct HomeScreen: View {
             .navigationDestination(isPresented: $notificationManager.navigateToGame) {
                 PunchTrackerScreen()
             }
+            .onAppear {
+                UNUserNotificationCenter.current().delegate = notificationManager
+                viewModel.setupAudioSesstion()
+            }
         }
         
     }
@@ -97,6 +111,7 @@ struct HomeScreen: View {
                         HStack {
                             Button {
                                 modelContext.delete(alarm)
+                                viewModel.cancelScheduleAlarm()
                             } label: {
                                 Image("ic_trash")
                                     .resizable()
@@ -127,7 +142,7 @@ struct HomeScreen: View {
                             print("Alarm scheduled for \(alarm.time) from toggle")
                         } else {
                             viewModel.cancelScheduleAlarm()
-                            print("Alarm canceled")
+                            print("todo: force toggle to be active")
                         }
                     })
                 ) { }
@@ -138,8 +153,6 @@ struct HomeScreen: View {
             .padding(.horizontal, 20)
         }
         .onAppear {
-            viewModel.setupAudioSession()
-            viewModel.stopWhiteNoise()
             if alarm.isActive {
                 viewModel.scheduleAlarm(forTime: alarm.time)
                 print("alarm set to \(alarm.time) when card appearing")

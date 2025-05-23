@@ -26,4 +26,30 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         completionHandler()
     }
     
+    func scheduleAlarmNotification(at date: Date, count: Int = 10) {
+        for i in 0..<count {
+            let fireTime = Calendar.current.date(byAdding: .second, value: i * 9, to: date)!
+
+            let content = UNMutableNotificationContent()
+            content.title = "⏰ Alarm"
+            content.body = "Wake up \(i)!"
+            content.sound = .default
+            content.categoryIdentifier = "alarmCategory"
+
+            let triggerDate = Calendar.current.dateComponents([.hour, .minute, .second], from: fireTime)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
+
+            let request = UNNotificationRequest(identifier: "alarm_\(i)", content: content, trigger: trigger)
+            UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+        }
+        
+        print("🔔 \(count) alarm notifications scheduled.")
+    }
+    
+    func cancelAllNotifications() {
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+        print("All scheduled notifications are canceled.")
+    }
+
 }
