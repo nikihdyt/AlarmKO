@@ -26,8 +26,7 @@ struct HomeScreen: View {
     @State private var audioPlayer: AVAudioPlayer?
     
     @StateObject private var viewModel = HomeViewModel()
-    @StateObject private var notificationManager = NotificationManager()
-
+    
     var body: some View {
         NavigationStack {
             if alarms.isEmpty {
@@ -64,7 +63,7 @@ struct HomeScreen: View {
                     }
                 }
                 .onAppear {
-                    UNUserNotificationCenter.current().delegate = notificationManager
+                    
                 }
             }
             
@@ -96,9 +95,12 @@ struct HomeScreen: View {
             .sheet(isPresented: $showSheet) {
                 AddAlarmView(alarm: $selectedAlarm)
             }
-            .navigationDestination(isPresented: $notificationManager.navigateToGame) {
+            .navigationDestination(isPresented: $viewModel.navigateToPunchingGame) {
                 PunchTrackerScreen()
             }
+        }
+        .onAppear {
+            viewModel.delegate()
         }
         
     }
@@ -136,34 +138,35 @@ struct HomeScreen: View {
                 }
                 .hSpacing(.leading)
                 
-                Toggle(isOn: Binding(
-                    get: { alarm.isActive },
-                    set: { newValue in
-                        alarm.isActive = newValue
-                        try? modelContext.save()
-                        
-                        if newValue {
-                            viewModel.scheduleAlarm(forTime: alarm.time)
-                            print("Alarm scheduled for \(alarm.time) from toggle")
-                        } else {
-                            viewModel.cancelScheduleAlarm()
-                            print("Alarm canceled")
-                        }
-                    })
-                ) { }
-                    .toggleStyle(SwitchToggleStyle(tint: Color("prim")))
-                    .padding(.leading, 4)
-                    .fixedSize()
+                Button {
+                    viewModel.setupNotification(for: alarm.time)
+                    viewModel.setupAlarmSound(for: alarm.time)
+                    print("HomeScreen: Scheduled Alarm")
+                } label: {
+                    Text("Schedule Alarm")
+                }
+                
+                
+                //                Tog
+                
+                //                Toggle(isOn: $a
+                //                ) { }
+                //                    .toggleStyle(SwitchToggleStyle(tint: Color("prim")))
+                //                    .padding(.leading, 4)
+                //                    .fixedSize()
+                //                    .onChange(of: alarm.isActive) { oldValue, newValue in
+                //
+                //                    }
             }
             .padding(.horizontal, 20)
         }
         .onAppear {
-            viewModel.setupAudioSession()
-            viewModel.stopWhiteNoise()
-            if alarm.isActive {
-                viewModel.scheduleAlarm(forTime: alarm.time)
-                print("alarm set to \(alarm.time) when card appearing")
-            }
+            //            viewModel.setupAudioSession()
+            //            viewModel.stopWhiteNoise()
+            //            if alarm.isActive {
+            //                viewModel.scheduleAlarm(forTime: alarm.time)
+            //                print("alarm set to \(alarm.time) when card appearing")
+            //            }
         }
     }
     
@@ -184,3 +187,22 @@ struct HomeScreen: View {
     HomeScreen()
         .preferredColorScheme(.dark)
 }
+
+/*
+ 
+ Binding(
+ get: { alarm.isActive },
+ set: { newValue in
+ alarm.isActive = newValue
+ try? modelContext.save()
+ 
+ if newValue {
+ viewModel.setupAlarm(for: <#T##Date#>)
+ print("Alarm scheduled for \(alarm.time) from toggle")
+ } else {
+ viewModel.cancelScheduleAlarm()
+ print("Alarm canceled")
+ }
+ })
+ 
+ */
