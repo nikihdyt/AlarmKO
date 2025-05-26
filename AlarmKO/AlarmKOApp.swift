@@ -10,9 +10,13 @@ import SwiftData
 
 @main
 struct AlarmKOApp: App {
+    
+    @StateObject var notificationManager = NotificationManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(notificationManager)
         }
         .modelContainer(for: Alarm.self)
     }

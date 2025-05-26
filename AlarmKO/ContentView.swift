@@ -16,7 +16,7 @@ struct ContentView: View {
             HomeScreen()
                 .preferredColorScheme(.dark)
         } else {
-            OnboardingView(hasSeenOnboarding: $hasSeenOnboarding)
+            OnboardingScreen(hasSeenOnboarding: $hasSeenOnboarding)
                 .preferredColorScheme(.dark)
         }
     }

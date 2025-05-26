@@ -10,6 +10,8 @@ import SwiftData
 import AVFoundation
 
 struct HomeScreen: View {
+    
+    @EnvironmentObject var notificationmanager: NotificationManager
     @AppStorage("isNavigateToGame") var isNavigateToGame: Bool = false
     
     let dummyAlarm = [

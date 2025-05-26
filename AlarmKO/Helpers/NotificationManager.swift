@@ -5,14 +5,43 @@
 //  Created by Ziqa on 22/05/25.
 //
 
-import Foundation
+import SwiftUI
 import UserNotifications
 
+@MainActor
 class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
     
     private final let TAG: String = "Notification Manager: "
     
+    let notificationCenter = UNUserNotificationCenter.current()
+    
     @Published var navigateToGameScreen = false
+    @Published var isGranted = false
+    
+    override init() {
+        super.init()
+        notificationCenter.delegate = self
+    }
+    
+    func requestAuthorization() async throws {
+        try await notificationCenter.requestAuthorization(options: [.sound, .badge, .alert])
+        await getCurrentSettings()
+    }
+    
+    func getCurrentSettings() async {
+        let currentSettings = await notificationCenter.notificationSettings()
+        isGranted = (currentSettings.authorizationStatus == .authorized)
+    }
+    
+    func openSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            if UIApplication.shared.canOpenURL(url) {
+                Task {
+                    await UIApplication.shared.open(url)
+                }
+            }
+        }
+    }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         
