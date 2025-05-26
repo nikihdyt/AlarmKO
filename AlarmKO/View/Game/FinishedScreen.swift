@@ -108,6 +108,9 @@ struct FinishedScreen: View {
                         .ignoresSafeArea()
                 }
             }
+            .onAppear() {
+                UserDefaults.standard.set(false, forKey: "isFinished")
+            }
         }
     }
     

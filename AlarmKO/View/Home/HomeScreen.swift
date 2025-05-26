@@ -10,9 +10,9 @@ import SwiftData
 import AVFoundation
 
 struct HomeScreen: View {
-    
     @EnvironmentObject var notificationmanager: NotificationManager
     @AppStorage("isNavigateToGame") var isNavigateToGame: Bool = false
+    @AppStorage("gameFinished") var gameFinished: Bool = false
     
     let dummyAlarm = [
         Alarm(id: UUID(), time: Date.now, alarmRepeat: "Every Day", label: "Alarm but the name is long", game: "Punch", sound: "alarm.wav", isActive: false),
@@ -26,7 +26,6 @@ struct HomeScreen: View {
     @State private var selectedAlarm: Alarm? = nil
     @State private var showSheet: Bool = false
     @State private var alarmSet = false
-    @State private var audioPlayer: AVAudioPlayer?
     
     @StateObject private var viewModel = HomeViewModel()
     
@@ -98,12 +97,33 @@ struct HomeScreen: View {
             .sheet(isPresented: $showSheet) {
                 AddAlarmView(alarm: $selectedAlarm)
             }
+            .sheet(isPresented: $gameFinished) {
+                FinishedScreen()
+            }
+            .onChange(of: gameFinished) {
+                print("gameFinished at onChange - HomeScreen :: \(gameFinished)")
+                if gameFinished == true {
+                    
+                    print("hereeee gameFinished :: \(gameFinished)")
+                    print("alarms[0] ----- \(alarms[0])")
+                    alarms[0].isActive = false
+                    try? modelContext.save()
+                    viewModel.stopAlarmSound()
+                }
+            }
             .navigationDestination(isPresented: $isNavigateToGame) {
                 PunchTrackerScreen()
             }
         }
         .onAppear {
             viewModel.delegate()
+            print("gameFinished in onAppear is :: \(gameFinished)")
+            
+            if gameFinished == true {
+                viewModel.stopAlarmSound()
+                alarms[0].isActive = false
+                try? modelContext.save()
+            }
         }
         
     }
@@ -141,6 +161,7 @@ struct HomeScreen: View {
                 }
                 .hSpacing(.leading)
                 
+                // for debug
                 Button {
                     viewModel.setupNotification(for: alarm.time)
                     viewModel.setupAlarmSound(for: alarm.time)
@@ -148,28 +169,37 @@ struct HomeScreen: View {
                 } label: {
                     Text("Schedule Alarm")
                 }
-                
-                
-                //                Tog
-                
-                //                Toggle(isOn: $a
-                //                ) { }
-                //                    .toggleStyle(SwitchToggleStyle(tint: Color("prim")))
-                //                    .padding(.leading, 4)
-                //                    .fixedSize()
-                //                    .onChange(of: alarm.isActive) { oldValue, newValue in
-                //
-                //                    }
+                Toggle(isOn:  Binding(
+                    get: { alarm.isActive },
+                    set: { newValue in
+                    alarm.isActive = newValue
+                    try? modelContext.save()
+                    
+                    if newValue {
+                        viewModel.setupNotification(for: alarm.time)
+                        viewModel.setupAlarmSound(for: alarm.time)
+                        print("Alarm scheduled for \(alarm.time) from toggle")
+                    } else {
+                        // TODO: cancel notif
+                        // cancel white noise
+                        viewModel.stopAlarmSound()
+//                            alarm.isActive = false
+//                            try? modelContext.save()
+                        print("Alarm canceled")
+                    }
+                    }) ) { }
+                        .toggleStyle(SwitchToggleStyle(tint: Color("prim")))
+                        .padding(.leading, 4)
+                        .fixedSize()
             }
             .padding(.horizontal, 20)
         }
         .onAppear {
-            //            viewModel.setupAudioSession()
-            //            viewModel.stopWhiteNoise()
-            //            if alarm.isActive {
-            //                viewModel.scheduleAlarm(forTime: alarm.time)
-            //                print("alarm set to \(alarm.time) when card appearing")
-            //            }
+//            if alarm.isActive {
+//                viewModel.setupNotification(for: alarm.time)
+//                viewModel.setupAlarmSound(for: alarm.time)
+//                print("alarm set to \(alarm.time) when card appearing")
+//            }
         }
     }
     

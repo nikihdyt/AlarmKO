@@ -22,6 +22,11 @@ final class HomeViewModel: ObservableObject {
         notificationManager.scheduleNotification(forTime: alarmTime)
     }
     
+    func cancelScheduleAlarm() {
+        notificationManager.cancelScheduleAlarm()
+        print("\(TAG): Canceled scheduled alarm.")
+    }
+    
     func setupAlarmSound(for alarmTime: Date) {
         
         alarmManger.playWhiteNoise()

@@ -14,9 +14,10 @@ struct Punches {
 }
 
 struct PunchTrackerScreen: View {
+    @Environment(\.dismiss) var dismiss
     @StateObject private var motionManager = PunchingMotionManager()
     
-    private let targetPunches = 10
+    private let targetPunches = 3
     
     // Computed property to get punches data from motion manager
     private var punches: [Punches] {
@@ -81,9 +82,6 @@ struct PunchTrackerScreen: View {
             .padding(.horizontal, 20)
             .navigationTitle("Punch Tracker")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(isPresented: $isTargetReached) {
-                FinishedScreen()
-            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button{
@@ -97,6 +95,10 @@ struct PunchTrackerScreen: View {
             .onChange(of: motionManager.punches.count) { oldValue, newValue in
                 if newValue >= targetPunches {
                     isTargetReached = true
+                    
+                    UserDefaults.standard.set(false, forKey: "isNavigateToGame")
+                    UserDefaults.standard.set(true, forKey: "gameFinished")
+                    dismiss()
                 }
             }
         }

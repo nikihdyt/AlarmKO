@@ -64,6 +64,7 @@ class AlarmManager {
     
     func stopAlarmSound() {
         audioPlayer?.stop()
+        print("calling stopAlarm from alarm manager")
     }
     
 }
