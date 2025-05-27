@@ -13,7 +13,7 @@ struct ContentView: View {
     
     var body: some View {
         if hasSeenOnboarding {
-            HomeScreen()
+            AlarmSettingsScreen()
                 .preferredColorScheme(.dark)
         } else {
             OnboardingScreen(hasSeenOnboarding: $hasSeenOnboarding)

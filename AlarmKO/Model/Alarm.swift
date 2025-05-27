@@ -8,8 +8,7 @@
 import Foundation
 import SwiftData
 
-@Model
-class Alarm: Identifiable {
+struct Alarm {
     var id = UUID()
     var sleepTime: DateComponents
     var wakeUpTime: DateComponents

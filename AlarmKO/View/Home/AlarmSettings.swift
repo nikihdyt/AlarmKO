@@ -13,10 +13,20 @@ class AlarmSettings: ObservableObject {
         didSet { saveSettings() }
     }
     @Published var wakeUpTime: DateComponents {
-        didSet { saveSettings() }
+        didSet {
+            saveSettings()
+            if isActive {
+                scheduleNotifications()
+            }
+        }
     }
     @Published var selectedDays: Set<AlarmRepeat> {
-        didSet { saveSettings() }
+        didSet {
+            saveSettings()
+            if isActive {
+                scheduleNotifications()
+            }
+        }
     }
     @Published var alarmGame: AlarmGame {
         didSet { saveSettings() }
@@ -28,10 +38,17 @@ class AlarmSettings: ObservableObject {
         didSet { saveSettings() }
     }
     @Published var isActive: Bool {
-        didSet { saveSettings() }
+        didSet {
+            saveSettings()
+            handleAlarmToggle()
+        }
     }
     
-    init() {
+    private var notificationManager: NotificationManager?
+    
+    init(notificationManager: NotificationManager? = nil) {
+        self.notificationManager = notificationManager
+        
         self.sleepTime = DateComponents(
             hour: UserDefaults.standard.integer(forKey: "sleepHour"),
             minute: UserDefaults.standard.integer(forKey: "sleepMinute")
@@ -94,6 +111,35 @@ class AlarmSettings: ObservableObject {
         case .thursday: return 4
         case .friday: return 5
         case .saturday: return 6
+        }
+    }
+    
+    func setNotificationManager(_ manager: NotificationManager) {
+            self.notificationManager = manager
+        }
+    
+    private func handleAlarmToggle() {
+        guard let notificationManager = notificationManager else {
+            print("AlarmSettings: NotificationManager not set")
+            return
+        }
+        
+        Task {
+            if isActive {
+                print("AlarmSettings: Alarm turned ON - scheduling notifications")
+                await notificationManager.scheduleNotification(for: self)
+            } else {
+                print("AlarmSettings: Alarm turned OFF - canceling notifications")
+                await notificationManager.cancelScheduleAlarm()
+            }
+        }
+    }
+    
+    private func scheduleNotifications() {
+        guard let notificationManager = notificationManager else { return }
+        
+        Task {
+            await notificationManager.scheduleNotification(for: self)
         }
     }
 }

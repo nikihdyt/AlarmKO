@@ -6,7 +6,6 @@ import UserNotifications
 @MainActor
 final class HomeViewModel: ObservableObject {
     
-    @Published var _alarmIsSet = false
     @Published var navigateToPunchingGame = false
     @Published var isTargetReached = false
     
@@ -20,7 +19,7 @@ final class HomeViewModel: ObservableObject {
     }
     
     func setupNotification(for alarmTime: Date) {
-        notificationManager.scheduleNotification(forTime: alarmTime)
+//        notificationManager.scheduleNotification(for: alarmTime)
     }
     
     func setupAlarmSound(for setupTime: Date, at alarmTime: Date) {

@@ -7,8 +7,10 @@
 
 import SwiftUI
 
-struct AlarmSettingScreen: View {
+struct AlarmSettingsScreen: View {
+    
     @StateObject private var alarmSettings = AlarmSettings()
+    @StateObject private var notificationManager = NotificationManager()
     @State private var sleepTime = Date()
     @State private var wakeUpTime = Date()
     
@@ -73,6 +75,8 @@ struct AlarmSettingScreen: View {
             .navigationTitle("Alarm Settings")
             .onAppear {
                 // Initialize date pickers with saved values
+                alarmSettings.setNotificationManager(notificationManager)
+                
                 if let hour = alarmSettings.sleepTime.hour, let minute = alarmSettings.sleepTime.minute {
                     sleepTime = Calendar.current.date(from: DateComponents(hour: hour, minute: minute)) ?? Date()
                 }
@@ -80,6 +84,7 @@ struct AlarmSettingScreen: View {
                     wakeUpTime = Calendar.current.date(from: DateComponents(hour: hour, minute: minute)) ?? Date()
                 }
             }
+            
         }
     }
     
@@ -132,5 +137,5 @@ struct WeekdaySelector: View {
 }
 
 #Preview {
-    AlarmSettingScreen()
+    AlarmSettingsScreen()
 }
