@@ -15,6 +15,7 @@ struct Punches {
 
 struct PunchTrackerScreen: View {
     @StateObject private var motionManager = PunchingMotionManager()
+    @StateObject private var viewModel = HomeViewModel()
     
     private let targetPunches = 10
     
@@ -97,6 +98,8 @@ struct PunchTrackerScreen: View {
             .onChange(of: motionManager.punches.count) { oldValue, newValue in
                 if newValue >= targetPunches {
                     isTargetReached = true
+                    viewModel.isTargetReached = true
+                    viewModel.stopAlarmSound()
                 }
             }
         }

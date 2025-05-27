@@ -61,7 +61,6 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     
     
     func scheduleNotification(forTime alarmTime: Date) {
-        
         for i in 0..<10 {
             let fireTime = Calendar.current.date(byAdding: .second, value: i * 9, to: alarmTime)!
             let content = UNMutableNotificationContent()
@@ -82,7 +81,6 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     }
     
     func cancelScheduleAlarm() {
-        
         let ids = (0..<10).map {
             "alarm_\($0)"
         }

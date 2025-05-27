@@ -45,7 +45,6 @@ class AlarmManager {
     }
     
     func playAlarmSound() {
-        setupAudioSession()
         
         guard let url = Bundle.main.url(forResource: "alarm", withExtension: "wav") else {
             print("Sound file not found")

@@ -8,6 +8,7 @@ final class HomeViewModel: ObservableObject {
     
     @Published var _alarmIsSet = false
     @Published var navigateToPunchingGame = false
+    @Published var isTargetReached = false
     
     final let TAG = "HomeViewModel"
     private var alarmManger = AlarmManager()
@@ -22,25 +23,37 @@ final class HomeViewModel: ObservableObject {
         notificationManager.scheduleNotification(forTime: alarmTime)
     }
     
-    func setupAlarmSound(for alarmTime: Date) {
-        
-        alarmManger.playWhiteNoise()
-        
-        let delay = alarmTime.timeIntervalSinceNow
-        guard delay > 0 else {
-            alarmManger.stopWhiteNoise()
-            alarmManger.playAlarmSound()
-            return
+    func setupAlarmSound(for setupTime: Date, at alarmTime: Date) {
+        let now = Date()
+        var finalAlarmTime = alarmTime
+        if alarmTime <= now {
+            finalAlarmTime = Calendar.current.date(byAdding: .day, value: 1, to: alarmTime)!
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            self.alarmManger.stopWhiteNoise()
-            self.alarmManger.playAlarmSound()
+        let whiteNoiseDelay = setupTime.timeIntervalSinceNow
+        if whiteNoiseDelay > 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + whiteNoiseDelay) {
+                self.alarmManger.playWhiteNoise()
+                print("White noise play")
+            }
+        } else {
+            alarmManger.playWhiteNoise()
+            print("White noise play")
+        }
+        
+        let alarmDelay = finalAlarmTime.timeIntervalSinceNow
+        if alarmDelay > 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + alarmDelay) {
+                self.alarmManger.stopWhiteNoise()
+                self.alarmManger.playAlarmSound()
+                print("Alarm noise play")
+            }
         }
     }
     
     func stopAlarmSound() {
         alarmManger.stopAlarmSound()
+        print("Alarm stopped")
     }
     
     func requestNotificationPermission() async {
@@ -53,3 +66,27 @@ final class HomeViewModel: ObservableObject {
         }
     }
 }
+
+
+/*
+ 
+ if Date.now < setupTime {
+ if let delay = setupTime.timeIntervalSinceNow
+ }
+ 
+ alarmManger.playWhiteNoise()
+ 
+ let delay = alarmTime.timeIntervalSinceNow
+ guard delay > 0 else {
+ alarmManger.stopWhiteNoise()
+ alarmManger.playAlarmSound()
+ return
+ }
+ 
+ DispatchQueue.main.asyncAfter(deadline: alarmTime) {
+ self.alarmManger.stopWhiteNoise()
+ self.alarmManger.playAlarmSound()
+ }
+ 
+ 
+ */

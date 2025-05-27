@@ -9,18 +9,20 @@ import Foundation
 import SwiftData
 
 @Model
-class Alarm : Identifiable {
+class Alarm: Identifiable {
     var id = UUID()
-    var time: Date
+    var sleepTime: DateComponents
+    var wakeUpTime: DateComponents
     var alarmRepeat: String
     var label: String
     var game: String
     var sound: String
     var isActive: Bool
     
-    init(id: UUID = UUID(), time: Date, alarmRepeat: String, label: String, game: String, sound: String, isActive: Bool) {
+    init(id: UUID = UUID(), sleepTime: DateComponents, wakeUpTime: DateComponents, alarmRepeat: String, label: String, game: String, sound: String, isActive: Bool) {
         self.id = id
-        self.time = time
+        self.sleepTime = sleepTime
+        self.wakeUpTime = wakeUpTime
         self.alarmRepeat = alarmRepeat
         self.label = label
         self.game = game
