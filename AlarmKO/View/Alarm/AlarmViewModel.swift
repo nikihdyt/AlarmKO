@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-class AlarmSettings: ObservableObject {
+class AlarmViewModel: ObservableObject {
     @Published var sleepTime: DateComponents {
         didSet { saveSettings() }
     }
@@ -53,8 +53,9 @@ class AlarmSettings: ObservableObject {
             hour: UserDefaults.standard.integer(forKey: "sleepHour"),
             minute: UserDefaults.standard.integer(forKey: "sleepMinute")
         )
+
         self.wakeUpTime = DateComponents(
-            hour: UserDefaults.standard.integer(forKey: "wakeHour") == 0 ? 7 : UserDefaults.standard.integer(forKey: "wakeHour"),
+            hour: UserDefaults.standard.integer(forKey: "wakeHour"),
             minute: UserDefaults.standard.integer(forKey: "wakeMinute")
         )
         self.selectedDays = UserDefaults.standard.getSet(forKey: "selectedDays", type: AlarmRepeat.self)
@@ -66,6 +67,10 @@ class AlarmSettings: ObservableObject {
         // Set default sleep time if not set
         if sleepTime.hour == 0 && sleepTime.minute == 0 {
             sleepTime = DateComponents(hour: 22, minute: 0)
+        }
+        
+        if wakeUpTime.hour == 0 && wakeUpTime.minute == 0 {
+            wakeUpTime = DateComponents(hour: 8, minute: 0)
         }
         
         // Set default selected days if empty

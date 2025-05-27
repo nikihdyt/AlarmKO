@@ -12,7 +12,7 @@ struct OnboardingScreen: View {
     @EnvironmentObject var notificationManager: NotificationManager
     @Environment(\.scenePhase) var scenePhase
     @Binding var hasSeenOnboarding: Bool
-    @State private var activeOnBoarding: OnBoarding = onBoardingScreens[0]
+    @State private var activeOnBoarding: OnBoardingModel = onBoardingScreens[0]
     
     private var isNotificationScreen: Bool {
         if let index = onBoardingScreens.firstIndex(of: activeOnBoarding) {

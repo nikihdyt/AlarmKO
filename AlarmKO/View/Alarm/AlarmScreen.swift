@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct AlarmSettingsScreen: View {
+struct AlarmScreen: View {
     
-    @StateObject private var alarmSettings = AlarmSettings()
+    @StateObject private var alarmSettings = AlarmViewModel()
     @StateObject private var notificationManager = NotificationManager()
     @State private var sleepTime = Date()
     @State private var wakeUpTime = Date()
@@ -88,6 +88,8 @@ struct AlarmSettingsScreen: View {
         }
     }
     
+    
+    // MARK: Debug print
     func printUserDefaults() {
         print("=== ALARM USERDEFAULTS DEBUG ===")
         
@@ -137,5 +139,5 @@ struct WeekdaySelector: View {
 }
 
 #Preview {
-    AlarmSettingsScreen()
+    AlarmScreen()
 }

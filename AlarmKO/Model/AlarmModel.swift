@@ -6,9 +6,8 @@
 //
 
 import Foundation
-import SwiftData
 
-struct Alarm {
+struct AlarmModel {
     var id = UUID()
     var sleepTime: DateComponents
     var wakeUpTime: DateComponents
