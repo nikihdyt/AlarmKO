@@ -61,7 +61,7 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         }
         
         // Cancel existing notifications first
-        await cancelScheduleAlarm()
+        cancelScheduleAlarm()
         
         guard alarmViewModel.isActive else {
             print("\(TAG)Alarm is not active")
@@ -124,14 +124,19 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         }
     }
     
-    func cancelScheduleAlarm() async {
-        let pendingRequests = await notificationCenter.pendingNotificationRequests()
-        let alarmIdentifiers = pendingRequests
-            .filter { $0.identifier.hasPrefix("alarm_") }
-            .map { $0.identifier }
+    func cancelScheduleAlarm() {
+        notificationCenter.getPendingNotificationRequests { pendingRequests in
+            let pendingAlarmIdentifiers = pendingRequests
+                .filter { $0.identifier.hasPrefix("alarm_") }
+                .map { $0.identifier }
+            
+            if !pendingAlarmIdentifiers.isEmpty {
+                self.notificationCenter.removePendingNotificationRequests(withIdentifiers: pendingAlarmIdentifiers)
+                print("\(self.TAG)Canceled \(pendingAlarmIdentifiers.count) pending alarm notifications")
+            }
+        }
         
-        notificationCenter.removePendingNotificationRequests(withIdentifiers: alarmIdentifiers)
-        print("\(TAG)Canceled \(alarmIdentifiers.count) scheduled alarm notifications")
+        print("\(TAG)Alarm cancellation requested")
     }
     
     // MARK: - Helper Methods
@@ -170,82 +175,34 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         case .alert:
             return UNNotificationSound.defaultCritical
         }
+    }
         
-        // MARK: - Debug Methods
-        func printScheduledNotifications() async {
-            let pendingRequests = await notificationCenter.pendingNotificationRequests()
-            let alarmRequests = pendingRequests.filter { $0.identifier.hasPrefix("alarm_") }
-            
-            print("\(TAG)=== SCHEDULED NOTIFICATIONS ===")
-            print("Total alarm notifications: \(alarmRequests.count)")
-            
-            for request in alarmRequests.sorted(by: { $0.identifier < $1.identifier }) {
-                if let trigger = request.trigger as? UNCalendarNotificationTrigger {
-                    print("ID: \(request.identifier)")
-                    print("  Title: \(request.content.title)")
-                    print("  Weekday: \(trigger.dateComponents.weekday ?? 0)")
-                    print("  Time: \(trigger.dateComponents.hour ?? 0):\(String(format: "%02d", trigger.dateComponents.minute ?? 0))")
-                    print("  Repeats: \(trigger.repeats)")
-                    print("---")
-                }
-            }
-            print("=== END NOTIFICATIONS ===")
-        }
+    // MARK: - Debug Methods
+    func printScheduledNotifications() async {
+        let pendingRequests = await notificationCenter.pendingNotificationRequests()
+        let alarmRequests = pendingRequests.filter { $0.identifier.hasPrefix("alarm_") }
         
-        // MARK: - UNUserNotificationCenterDelegate
-        func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-            
-            // Show notification even when app is in foreground
-            if notification.request.content.userInfo["isAlarm"] as? Bool == true {
-                completionHandler([.banner, .sound, .badge])
-            } else {
-                completionHandler([])
+        print("\(TAG)=== SCHEDULED NOTIFICATIONS ===")
+        print("Total alarm notifications: \(alarmRequests.count)")
+        
+        for request in alarmRequests.sorted(by: { $0.identifier < $1.identifier }) {
+            if let trigger = request.trigger as? UNCalendarNotificationTrigger {
+                print("ID: \(request.identifier)")
+                print("  Title: \(request.content.title)")
+                print("  Weekday: \(trigger.dateComponents.weekday ?? 0)")
+                print("  Time: \(trigger.dateComponents.hour ?? 0):\(String(format: "%02d", trigger.dateComponents.minute ?? 0))")
+                print("  Repeats: \(trigger.repeats)")
+                print("---")
             }
         }
-        
-        func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) async {
-            
-            await cancelScheduleAlarm()
-            navigateToGameScreen = true
-            print(navigateToGameScreen)
-            
-//            let userInfo = response.notification.request.content.userInfo
-//            
-//            if userInfo["isAlarm"] as? Bool == true {
-//                switch response.actionIdentifier {
-//                case UNNotificationDefaultActionIdentifier:
-//                    
-//                default:
-//                    break
-//                }
-//            }
-            
-            completionHandler()
-        }
-        
-        func snoozeAlarm() async {
-            // Schedule a single notification 5 minutes from now
-            let content = UNMutableNotificationContent()
-            content.title = "⏰ Snooze Alarm"
-            content.body = "Time to wake up! (Snoozed)"
-            content.sound = UNNotificationSound.default
-            content.categoryIdentifier = alarmCategoryIdentifier
-            content.userInfo = ["isAlarm": true]
-            
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 300, repeats: false) // 5 minutes
-            let request = UNNotificationRequest(identifier: "snooze_alarm", content: content, trigger: trigger)
-            
-            do {
-                try await notificationCenter.add(request)
-                print("\(TAG)Snooze alarm scheduled for 5 minutes")
-            } catch {
-                print("\(TAG)Failed to schedule snooze: \(error)")
-            }
-        }
+        print("=== END NOTIFICATIONS ===")
     }
     
     // MARK: - UNUserNotificationCenterDelegate
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+
+        cancelScheduleAlarm()
+        print("cancel notif from UNCenter willPresent")
         
         // Show notification even when app is in foreground
         if notification.request.content.userInfo["isAlarm"] as? Bool == true {
@@ -255,65 +212,13 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         }
     }
     
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) async {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
-        await cancelScheduleAlarm()
+        cancelScheduleAlarm()
+        print("cancel notif from UNCenter didReceive")
+        
         navigateToGameScreen = true
-        print(navigateToGameScreen)
-        
-//            let userInfo = response.notification.request.content.userInfo
-//
-//            if userInfo["isAlarm"] as? Bool == true {
-//                switch response.actionIdentifier {
-//                case UNNotificationDefaultActionIdentifier:
-//
-//                default:
-//                    break
-//                }
-//            }
         
         completionHandler()
     }
 }
-
-
-/*
- 
- func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
- 
- cancelScheduleAlarm()
- 
- completionHandler([.badge, .banner, .sound])
- }
- 
- func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
- 
- UserDefaults.standard.set(true, forKey: "isNavigateToGame")
- cancelScheduleAlarm()
- 
- completionHandler()
- 
- }
- 
- */
-
-
-/*
- 
- for i in 0..<10 {
- let fireTime = Calendar.current.date(byAdding: .second, value: i * 9, to: alarmTime)!
- let content = UNMutableNotificationContent()
- 
- content.title = "⏰ Alarm"
- content.body = "Wake up \(i)!"
- content.sound = UNNotificationSound.default
- content.categoryIdentifier = "ALARM_RINGING"
- 
- let triggerDate = Calendar.current.dateComponents([.hour, .minute, .second], from: fireTime)
- let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
- let request = UNNotificationRequest(identifier: "alarm_\(i)", content: content, trigger: trigger)
- 
- notificationCenter.add(request)
- }
- 
- */
