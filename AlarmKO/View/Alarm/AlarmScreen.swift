@@ -1,5 +1,5 @@
 //
-//  AlarmSettingScreen.swift
+//  alarmViewModelcreen.swift
 //  AlarmKO
 //
 //  Created by Ziqa on 26/05/25.
@@ -9,8 +9,9 @@ import SwiftUI
 
 struct AlarmScreen: View {
     
-    @StateObject private var alarmSettings = AlarmViewModel()
+    @StateObject private var alarmViewModel = AlarmViewModel()
     @StateObject private var notificationManager = NotificationManager()
+    @StateObject private var alarmManager = AlarmManager()
     @State private var sleepTime = Date()
     @State private var wakeUpTime = Date()
     
@@ -24,7 +25,7 @@ struct AlarmScreen: View {
                 )
                 .datePickerStyle(.graphical)
                 .onChange(of: sleepTime) { _, newValue in
-                    alarmSettings.sleepTime = Calendar.current.dateComponents([.hour, .minute], from: newValue)
+                    alarmViewModel.sleepTime = Calendar.current.dateComponents([.hour, .minute], from: newValue)
                 }
                 DatePicker(
                     "Wake Up Time",
@@ -33,36 +34,88 @@ struct AlarmScreen: View {
                 )
                 .datePickerStyle(.graphical)
                 .onChange(of: wakeUpTime) { _, newValue in
-                    alarmSettings.wakeUpTime = Calendar.current.dateComponents([.hour, .minute], from: newValue)
+                    alarmViewModel.wakeUpTime = Calendar.current.dateComponents([.hour, .minute], from: newValue)
                 }
                 
                 Section("Repeat") {
-                    WeekdaySelector(selectedDays: $alarmSettings.selectedDays)
+                    WeekdaySelector(selectedDays: $alarmViewModel.selectedDays)
                     
                     HStack {
                         Text("Selected:")
                         Spacer()
-                        Text(alarmSettings.repeatDescription)
+                        Text(alarmViewModel.repeatDescription)
                             .foregroundColor(.secondary)
                     }
                 }
                 
                 Section("Settings") {
-                    TextField("Label", text: $alarmSettings.label)
+                    TextField("Label", text: $alarmViewModel.label)
                     
-                    Picker("Game", selection: $alarmSettings.alarmGame) {
+                    Picker("Game", selection: $alarmViewModel.alarmGame) {
                         ForEach(AlarmGame.allCases, id: \.self) { game in
                             Text(game.rawValue)
                         }
                     }
                     
-                    Picker("Sound", selection: $alarmSettings.alarmSound) {
+                    Picker("Sound", selection: $alarmViewModel.alarmSound) {
                         ForEach(AlarmSound.allCases, id: \.self) { sound in
                             Text(sound.rawValue).tag(sound)
                         }
                     }
                     
-                    Toggle("Active", isOn: $alarmSettings.isActive)
+                    Toggle("Active", isOn: $alarmViewModel.isActive)
+                }
+                
+                Section("Audio Status") {
+                    HStack {
+                        Text("White Noise:")
+                        Spacer()
+                        Text(alarmManager.isWhiteNoisePlaying ? "Playing" : "Stopped")
+                            .foregroundColor(alarmManager.isWhiteNoisePlaying ? .green : .gray)
+                    }
+                    
+                    HStack {
+                        Text("Alarm Sound:")
+                        Spacer()
+                        Text(alarmManager.isAlarmPlaying ? "Playing" : "Stopped")
+                            .foregroundColor(alarmManager.isAlarmPlaying ? .red : .gray)
+                    }
+                }
+                
+                Section("Manual Controls") {
+                    Button("Test White Noise") {
+                        alarmManager.manualStartWhiteNoise()
+                    }
+                    .foregroundColor(.blue)
+                    
+                    Button("Test Alarm Sound") {
+                        alarmManager.manualStartAlarm()
+                    }
+                    .foregroundColor(.red)
+                    
+                    Button("Stop All Sounds") {
+                        alarmManager.stopAllSounds()
+                    }
+                    .foregroundColor(.orange)
+                }
+                
+                Section("Debug") {
+                    Button("Print UserDefaults to Console") {
+                        printUserDefaults()
+                    }
+                    .foregroundColor(.blue)
+                    
+                    Button("Print Scheduled Notifications") {
+                        Task {
+                            await notificationManager.printScheduledNotifications()
+                        }
+                    }
+                    .foregroundColor(.blue)
+                    
+                    Button("Print Alarm Manager Status") {
+                        alarmManager.printCurrentStatus()
+                    }
+                    .foregroundColor(.blue)
                 }
                 
                 Section("Debug") {
@@ -75,12 +128,13 @@ struct AlarmScreen: View {
             .navigationTitle("Alarm Settings")
             .onAppear {
                 // Initialize date pickers with saved values
-                alarmSettings.setNotificationManager(notificationManager)
+                alarmViewModel.setNotificationManager(notificationManager)
+                alarmViewModel.setAlarmManager(alarmManager)
                 
-                if let hour = alarmSettings.sleepTime.hour, let minute = alarmSettings.sleepTime.minute {
+                if let hour = alarmViewModel.sleepTime.hour, let minute = alarmViewModel.sleepTime.minute {
                     sleepTime = Calendar.current.date(from: DateComponents(hour: hour, minute: minute)) ?? Date()
                 }
-                if let hour = alarmSettings.wakeUpTime.hour, let minute = alarmSettings.wakeUpTime.minute {
+                if let hour = alarmViewModel.wakeUpTime.hour, let minute = alarmViewModel.wakeUpTime.minute {
                     wakeUpTime = Calendar.current.date(from: DateComponents(hour: hour, minute: minute)) ?? Date()
                 }
             }

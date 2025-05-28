@@ -176,7 +176,7 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
             return UNNotificationSound.defaultCritical
         }
     }
-        
+    
     // MARK: - Debug Methods
     func printScheduledNotifications() async {
         let pendingRequests = await notificationCenter.pendingNotificationRequests()
@@ -200,7 +200,7 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     
     // MARK: - UNUserNotificationCenterDelegate
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-
+        
         cancelScheduleAlarm()
         print("cancel notif from UNCenter willPresent")
         

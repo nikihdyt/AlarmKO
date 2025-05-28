@@ -8,61 +8,369 @@
 import SwiftUI
 import AVFoundation
 
-class AlarmManager {
+@MainActor
+class AlarmManager: ObservableObject {
     
-    @Published var audioPlayer: AVAudioPlayer?
+    @Published var alarmPlayer: AVAudioPlayer?
     @Published var whiteNoisePlayer: AVAudioPlayer?
+    @Published var isWhiteNoisePlaying = false
+    @Published var isAlarmPlaying = false
+    
+    private var sleepTimer: Timer?
+    private var alarmTimer: Timer?
+    private var alarmViewModel: AlarmViewModel?
+    
+    private let TAG = "Alarm Manager: "
+    
+    init() {
+        setupAudioSession()
+    }
+    
+    func setAlarmViewModel(_ viewModel: AlarmViewModel) {
+            self.alarmViewModel = viewModel
+        }
+    
     
     func setupAudioSession() {
         // Set the audio session to playback mode, which allows background audio
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: .mixWithOthers)
             try AVAudioSession.sharedInstance().setActive(true)
+            print("\(TAG)Audio session configured to bypass silent switch")
         } catch {
             print("Error setting up audio session: \(error.localizedDescription)")
         }
     }
     
-    func playWhiteNoise() {
+    func scheduleAlarm(for alarmViewModel: AlarmViewModel) async {
+        cancelAlarmSequence()
         
+        guard alarmViewModel.isActive else {
+            print("\(TAG)Alarm is not active")
+            return
+        }
+        
+        let selectedDays = alarmViewModel.selectedDays
+        guard !selectedDays.isEmpty else {
+            print("\(TAG)No days selected for alarm")
+            return
+        }
+    }
+    
+    func scheduleAlarmSequence() {
+        guard let viewModel = alarmViewModel else {
+            print("\(TAG) No alarm viewmodel provided")
+            return
+        }
+        
+        guard viewModel.isActive else {
+            print("\(TAG) Alarm is not active")
+            return
+        }
+        
+        cancelAlarmSequence()
+        
+        for day in viewModel.selectedDays {
+            scheduleForDay(day: day, viewModel: viewModel)
+        }
+    }
+    
+    private func scheduleForDay(day: AlarmRepeat, viewModel: AlarmViewModel) {
+            let now = Date()
+            let calendar = Calendar.current
+            
+            guard let sleepHour = viewModel.sleepTime.hour,
+                  let sleepMinute = viewModel.sleepTime.minute,
+                  let wakeHour = viewModel.wakeUpTime.hour,
+                  let wakeMinute = viewModel.wakeUpTime.minute else {
+                print("\(TAG)Invalid time settings")
+                return
+            }
+            
+            // Get the next occurrence of this weekday
+            let targetWeekday = weekdayToCalendarWeekday(day)
+            let currentWeekday = calendar.component(.weekday, from: now)
+            
+            var daysToAdd = targetWeekday - currentWeekday
+            if daysToAdd <= 0 {
+                daysToAdd += 7 // Next week
+            }
+            
+            // But if it's today and we haven't passed the sleep time yet, use today
+            if targetWeekday == currentWeekday {
+                let todaySleepTime = calendar.date(bySettingHour: sleepHour, minute: sleepMinute, second: 0, of: now)
+                if let todaySleep = todaySleepTime, todaySleep > now {
+                    daysToAdd = 0 // Use today
+                }
+            }
+            
+            guard let targetDate = calendar.date(byAdding: .day, value: daysToAdd, to: now) else {
+                print("\(TAG)Could not calculate target date")
+                return
+            }
+            
+            // Create sleep and wake times for the target date
+            guard let sleepTime = calendar.date(bySettingHour: sleepHour, minute: sleepMinute, second: 0, of: targetDate),
+                  var wakeTime = calendar.date(bySettingHour: wakeHour, minute: wakeMinute, second: 0, of: targetDate) else {
+                print("\(TAG)Could not create target times")
+                return
+            }
+            
+            // If wake time is before sleep time, it's the next day
+            if wakeTime <= sleepTime {
+                wakeTime = calendar.date(byAdding: .day, value: 1, to: wakeTime) ?? wakeTime
+            }
+            
+            // Only schedule if both times are in the future
+            if sleepTime > now {
+                scheduleSleepTimer(for: sleepTime)
+            }
+            
+            if wakeTime > now {
+                scheduleAlarmTimer(for: wakeTime)
+            }
+            
+            print("\(TAG)Scheduled for \(day.rawValue): sleep at \(formatTime(sleepTime)), wake at \(formatTime(wakeTime))")
+        }
+        
+        private func scheduleSleepTimer(for sleepTime: Date) {
+            let timeInterval = sleepTime.timeIntervalSinceNow
+            
+            if timeInterval > 0 {
+                sleepTimer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) { [weak self] _ in
+                    Task { @MainActor in
+                        self?.startWhiteNoise()
+                    }
+                }
+                print("\(TAG)Sleep timer scheduled for \(timeInterval) seconds from now (\(formatTime(sleepTime)))")
+            }
+        }
+        
+        private func scheduleAlarmTimer(for alarmTime: Date) {
+            let timeInterval = alarmTime.timeIntervalSinceNow
+            
+            if timeInterval > 0 {
+                alarmTimer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) { [weak self] _ in
+                    Task { @MainActor in
+                        self?.switchToAlarmSound()
+                    }
+                }
+                print("\(TAG)Alarm timer scheduled for \(timeInterval) seconds from now (\(formatTime(alarmTime)))")
+            }
+        }
+    
+    func cancelAlarmSequence() {
+        sleepTimer?.invalidate()
+        alarmTimer?.invalidate()
+        sleepTimer = nil
+        alarmTimer = nil
+        
+        stopWhiteNoise()
+        stopAlarmSound()
+        
+        print("\(TAG)Alarm sequence canceled")
+    }
+    
+    func startWhiteNoise() {
         guard let url = Bundle.main.url(forResource: "white_noise", withExtension: "mp3") else {
-            print("White noise file not found")
+            print("\(TAG) White noise file not found")
             return
         }
         
         do {
+            stopAlarmSound()
             whiteNoisePlayer = try AVAudioPlayer(contentsOf: url)
             whiteNoisePlayer?.numberOfLoops = -1 // Loop indefinitely
             whiteNoisePlayer?.prepareToPlay()
             whiteNoisePlayer?.play()
+            
+            isWhiteNoisePlaying = true
+            print("\(TAG) White noise started")
         } catch {
-            print("Error playing white noise: \(error.localizedDescription)")
+            print("\(TAG) Error playing white noise: \(error.localizedDescription)")
         }
     }
     
     func stopWhiteNoise() {
         whiteNoisePlayer?.stop()
+        whiteNoisePlayer = nil
+        isWhiteNoisePlaying = false
+        print("\(TAG)White noise stopped")
+    }
+    
+    func switchToAlarmSound() {
+        print("\(TAG)Switching from white noise to alarm sound")
+        stopWhiteNoise()
+        playAlarmSound()
     }
     
     func playAlarmSound() {
-        
         guard let url = Bundle.main.url(forResource: "alarm", withExtension: "wav") else {
-            print("Sound file not found")
+            print("\(TAG) Sound file not found")
             return
         }
         
         do {
-            audioPlayer = try AVAudioPlayer(contentsOf: url)
-            audioPlayer?.numberOfLoops = -1 // Loop indefinitely
-            audioPlayer?.prepareToPlay()
-            audioPlayer?.play()
+            alarmPlayer = try AVAudioPlayer(contentsOf: url)
+            alarmPlayer?.numberOfLoops = -1 // Loop indefinitely
+            alarmPlayer?.prepareToPlay()
+            alarmPlayer?.play()
+            
+            isAlarmPlaying = true
+            print("\(TAG) Alarm sound started")
         } catch {
-            print("Error playing sound: \(error.localizedDescription)")
+            print("\(TAG) Error playing sound: \(error.localizedDescription)")
         }
     }
     
     func stopAlarmSound() {
-        audioPlayer?.stop()
+        alarmPlayer?.stop()
+        alarmPlayer = nil
+        isAlarmPlaying = false
+        print("\(TAG)Alarm sound stopped")
+    }
+    
+    func stopAllSounds() {
+        stopWhiteNoise()
+        stopAlarmSound()
+        cancelAlarmSequence()
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func weekdayToCalendarWeekday(_ day: AlarmRepeat) -> Int {
+            switch day {
+            case .sunday: return 1
+            case .monday: return 2
+            case .tuesday: return 3
+            case .wednesday: return 4
+            case .thursday: return 5
+            case .friday: return 6
+            case .saturday: return 7
+            }
+        }
+    
+    private func calendarWeekdayToWeekday(_ calendarWeekday: Int) -> AlarmRepeat {
+        switch calendarWeekday {
+        case 1: return .sunday
+        case 2: return .monday
+        case 3: return .tuesday
+        case 4: return .wednesday
+        case 5: return .thursday
+        case 6: return .friday
+        case 7: return .saturday
+        default: return .monday
+        }
+    }
+    
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+    
+    // MARK: - Debug Methods
+    func printCurrentStatus() {
+        print("\(TAG)=== ALARM MANAGER STATUS ===")
+        print("White noise playing: \(isWhiteNoisePlaying)")
+        print("Alarm playing: \(isAlarmPlaying)")
+        print("Sleep timer active: \(sleepTimer != nil)")
+        print("Alarm timer active: \(alarmTimer != nil)")
+        
+        if let settings = alarmViewModel {
+            print("Alarm active: \(settings.isActive)")
+            print("Sleep time: \(settings.sleepTime.hour ?? 0):\(String(format: "%02d", settings.sleepTime.minute ?? 0))")
+            print("Wake time: \(settings.wakeUpTime.hour ?? 0):\(String(format: "%02d", settings.wakeUpTime.minute ?? 0))")
+            print("Selected days: \(settings.selectedDays.map { $0.rawValue }.joined(separator: ", "))")
+        }
+        print("=== END STATUS ===")
+    }
+    
+    // MARK: - Manual Controls (for testing)
+    func manualStartWhiteNoise() {
+        startWhiteNoise()
+    }
+    
+    func manualStartAlarm() {
+        playAlarmSound()
     }
     
 }
+
+
+/*
+ 
+ private func scheduleForToday(viewModel: AlarmViewModel) {
+     let now = Date()
+     let calendar = Calendar.current
+     
+     guard let sleepHour = viewModel.sleepTime.hour,
+           let sleepMinute = viewModel.sleepTime.minute,
+           let wakeHour = viewModel.wakeUpTime.hour,
+           let wakeMinute = viewModel.wakeUpTime.minute else {
+         print("\(TAG)Invalid time settings")
+         return
+     }
+     
+     // Create sleep time for today
+     var sleepComponents = DateComponents()
+     sleepComponents.hour = sleepHour
+     sleepComponents.minute = sleepMinute
+     
+     var sleepTime = calendar.date(from: sleepComponents) ?? now
+     
+     // Create wake time
+     var wakeComponents = DateComponents()
+     wakeComponents.hour = wakeHour
+     wakeComponents.minute = wakeMinute
+     
+     var wakeTime = calendar.date(from: wakeComponents) ?? now
+     
+     // Handle next day scenarios
+     if sleepTime < now {
+         sleepTime = calendar.date(byAdding: .day, value: 1, to: sleepTime) ?? sleepTime
+     }
+     
+     if wakeTime < sleepTime {
+         wakeTime = calendar.date(byAdding: .day, value: 1, to: wakeTime) ?? wakeTime
+     }
+     
+     // Check if today is a selected day
+     let today = calendar.component(.weekday, from: now)
+     let todayWeekday = calendarWeekdayToWeekday(today)
+     
+     if viewModel.selectedDays.contains(todayWeekday) {
+         scheduleSleepTimer(for: sleepTime)
+         scheduleAlarmTimer(for: wakeTime)
+         
+         print("\(TAG)Scheduled sleep at \(formatTime(sleepTime)) and alarm at \(formatTime(wakeTime))")
+     } else {
+         print("\(TAG)Today is not a selected alarm day")
+     }
+ }
+ 
+ private func scheduleSleepTimer(for sleepTime: Date) async {
+     let timeInterval = sleepTime.timeIntervalSinceNow
+     
+     if timeInterval > 0 {
+         sleepTimer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) { _ in
+             self.startWhiteNoise()
+         }
+         print("\(TAG)Sleep timer scheduled for \(timeInterval) seconds from now")
+     }
+ }
+ 
+ private func scheduleAlarmTimer(for alarmTime: Date) {
+     let timeInterval = alarmTime.timeIntervalSinceNow
+     
+     if timeInterval > 0 {
+         alarmTimer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) { [weak self] _ in
+             Task { @MainActor in
+                 self?.switchToAlarmSound()
+             }
+         }
+         print("\(TAG)Alarm timer scheduled for \(timeInterval) seconds from now")
+     }
+ }
+ 
+ */

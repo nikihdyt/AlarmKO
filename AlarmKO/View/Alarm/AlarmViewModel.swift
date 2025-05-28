@@ -17,6 +17,7 @@ class AlarmViewModel: ObservableObject {
             saveSettings()
             if isActive {
                 scheduleNotifications()
+                scheduleAudioSequence()
             }
         }
     }
@@ -25,6 +26,7 @@ class AlarmViewModel: ObservableObject {
             saveSettings()
             if isActive {
                 scheduleNotifications()
+                scheduleAudioSequence()
             }
         }
     }
@@ -45,6 +47,7 @@ class AlarmViewModel: ObservableObject {
     }
     
     private var notificationManager: NotificationManager?
+    private var alarmManager: AlarmManager?
     
     init(notificationManager: NotificationManager? = nil) {
         self.notificationManager = notificationManager
@@ -119,12 +122,18 @@ class AlarmViewModel: ObservableObject {
         }
     }
     
+    
     func setNotificationManager(_ manager: NotificationManager) {
-            self.notificationManager = manager
-        }
+        self.notificationManager = manager
+    }
+    
+    func setAlarmManager(_ manager: AlarmManager) {
+        self.alarmManager = manager
+        manager.setAlarmViewModel(self)
+    }
     
     private func handleAlarmToggle() {
-        guard let notificationManager = notificationManager else {
+        guard let notificationManager = notificationManager, let alarmManager = alarmManager else {
             print("AlarmSettings: NotificationManager not set")
             return
         }
@@ -133,9 +142,11 @@ class AlarmViewModel: ObservableObject {
             if isActive {
                 print("AlarmSettings: Alarm turned ON - scheduling notifications")
                 await notificationManager.scheduleNotification(for: self)
+                alarmManager.scheduleAlarmSequence()
             } else {
                 print("AlarmSettings: Alarm turned OFF - canceling notifications")
-                await notificationManager.cancelScheduleAlarm()
+                notificationManager.cancelScheduleAlarm()
+                alarmManager.cancelAlarmSequence()
             }
         }
     }
@@ -147,4 +158,11 @@ class AlarmViewModel: ObservableObject {
             await notificationManager.scheduleNotification(for: self)
         }
     }
+    
+    // ADD THIS NEW METHOD
+    private func scheduleAudioSequence() {
+        guard let alarmManager = alarmManager else { return }
+        alarmManager.scheduleAlarmSequence()
+    }
+    
 }
