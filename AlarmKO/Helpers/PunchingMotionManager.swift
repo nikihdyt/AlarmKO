@@ -20,7 +20,7 @@ import Combine
 class PunchingMotionManager: ObservableObject {
     private var motionManager = CMMotionManager()
     private let updateInterval = 1.0 / 60.0 // 60Hz
-    private let threshold = 10.0 // G-forces (can be tuned)
+    private let threshold = 3.0 // G-forces (can be tuned)
 
     @Published var latestAcceleration: Double = 0.0
     @Published var punches: [(timestamp: Date, peak: Double)] = []

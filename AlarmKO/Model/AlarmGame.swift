@@ -11,3 +11,9 @@ enum AlarmGame: String, Hashable, CaseIterable {
     case punching = "Punching Game"
     case leveler = "Leveler Game"
 }
+
+enum GameNavigationState: String {
+    case home
+    case punchGame
+    case levelerGame
+}

@@ -14,7 +14,7 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     private final let TAG: String = "Notification Manager: "
     private let notificationCenter = UNUserNotificationCenter.current()
     
-    @Published var navigateToGameScreen = false
+    @AppStorage("navState") private var navState: String = GameNavigationState.home.rawValue
     @AppStorage("notificationPermissionGranted") var isGranted = false
     
     // Configuration constants
@@ -364,7 +364,10 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
             // For alarm notifications, cancel all and navigate to game
             cancelAllAlarmNotifications()
             print("cancel alarm notifs from UNCenter didReceive")
-            navigateToGameScreen = true
+            
+            navState = GameNavigationState.punchGame.rawValue
+            print("navState set to: {\(navState)} from notif center didReceive")
+            
         } else if response.notification.request.content.userInfo["isBedtime"] as? Bool == true {
             // For bedtime notifications, just acknowledge
             print("Bedtime reminder acknowledged")

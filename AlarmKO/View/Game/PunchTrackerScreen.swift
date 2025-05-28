@@ -17,7 +17,8 @@ struct PunchTrackerScreen: View {
     @StateObject private var motionManager = PunchingMotionManager()
 //    @StateObject private var viewModel = HomeViewModel()
     
-    private let targetPunches = 10
+    @AppStorage("navState") private var navState: String = GameNavigationState.punchGame.rawValue
+    private let targetPunches = 4
     
     // Computed property to get punches data from motion manager
     private var punches: [Punches] {
@@ -98,7 +99,12 @@ struct PunchTrackerScreen: View {
             .onChange(of: motionManager.punches.count) { oldValue, newValue in
                 if newValue >= targetPunches {
                     isTargetReached = true
+                    navState = GameNavigationState.home.rawValue // reset navState
+                    print("navState changed to: {\(navState)} at PunchTrackerScreen.onChange")
                 }
+            }
+            .onAppear() {
+                print("PunchTrackerScreen is appearing")
             }
         }
     }

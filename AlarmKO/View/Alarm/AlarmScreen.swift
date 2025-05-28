@@ -15,8 +15,17 @@ struct AlarmScreen: View {
     @State private var bedtimeReminderTime = Date()
     @State private var wakeUpTime = Date()
     
+    @AppStorage("navState") private var navStateRaw: String = GameNavigationState.home.rawValue
+    
+    var navState: GameNavigationState {
+        get { GameNavigationState(rawValue: navStateRaw) ?? .home }
+        set { navStateRaw = newValue.rawValue }
+    }
+    
+    @State private var navigateToAnotherScreen: Bool = false
+    
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 DatePicker(
                     "Bedtime Reminder",
@@ -131,6 +140,16 @@ struct AlarmScreen: View {
                 if let hour = alarmViewModel.wakeUpTime.hour, let minute = alarmViewModel.wakeUpTime.minute {
                     wakeUpTime = Calendar.current.date(from: DateComponents(hour: hour, minute: minute)) ?? Date()
                 }
+                
+            }
+            .onChange(of: navStateRaw) { _, newValue in
+                if newValue == GameNavigationState.punchGame.rawValue {
+                    print("navState: \(navState) in the AlarmScreen")
+                    navigateToAnotherScreen = true
+                }
+            }
+            .navigationDestination(isPresented: $navigateToAnotherScreen) {
+                    PunchTrackerScreen()
             }
             
         }
