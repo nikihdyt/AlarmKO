@@ -12,21 +12,22 @@ struct AlarmScreen: View {
     @StateObject private var alarmViewModel = AlarmViewModel()
     @StateObject private var notificationManager = NotificationManager()
     @StateObject private var alarmManager = AlarmManager()
-    @State private var sleepTime = Date()
+    @State private var bedtimeReminderTime = Date()
     @State private var wakeUpTime = Date()
     
     var body: some View {
         NavigationView {
             Form {
                 DatePicker(
-                    "Sleep Time",
-                    selection: $sleepTime,
+                    "Bedtime Reminder",
+                    selection: $bedtimeReminderTime,
                     displayedComponents: .hourAndMinute
                 )
                 .datePickerStyle(.graphical)
-                .onChange(of: sleepTime) { _, newValue in
+                .onChange(of: bedtimeReminderTime) { _, newValue in
                     alarmViewModel.sleepTime = Calendar.current.dateComponents([.hour, .minute], from: newValue)
                 }
+                
                 DatePicker(
                     "Wake Up Time",
                     selection: $wakeUpTime,
@@ -117,13 +118,6 @@ struct AlarmScreen: View {
                     }
                     .foregroundColor(.blue)
                 }
-                
-                Section("Debug") {
-                    Button("Print UserDefaults to Console") {
-                        printUserDefaults()
-                    }
-                    .foregroundColor(.blue)
-                }
             }
             .navigationTitle("Alarm Settings")
             .onAppear {
@@ -132,7 +126,7 @@ struct AlarmScreen: View {
                 alarmViewModel.setAlarmManager(alarmManager)
                 
                 if let hour = alarmViewModel.sleepTime.hour, let minute = alarmViewModel.sleepTime.minute {
-                    sleepTime = Calendar.current.date(from: DateComponents(hour: hour, minute: minute)) ?? Date()
+                    bedtimeReminderTime = Calendar.current.date(from: DateComponents(hour: hour, minute: minute)) ?? Date()
                 }
                 if let hour = alarmViewModel.wakeUpTime.hour, let minute = alarmViewModel.wakeUpTime.minute {
                     wakeUpTime = Calendar.current.date(from: DateComponents(hour: hour, minute: minute)) ?? Date()

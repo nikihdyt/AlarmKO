@@ -19,6 +19,7 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     
     // Configuration constants
     private let alarmCategoryIdentifier = "ALARM_RINGING"
+    private let bedtimeCategoryIdentifier = "BEDTIME_REMINDER"
     private let maxNotifications = 10
     private let notificationInterval = 5 // seconds
     
@@ -76,11 +77,49 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         
         // Schedule for each selected day
         for day in selectedDays {
+            await scheduleBedtimeReminder(for: day, alarmViewModel: alarmViewModel)
             await scheduleAlarmForWeekday(day, alarmViewModel: alarmViewModel)
         }
         
         print("\(TAG)Scheduled alarms for \(selectedDays.count) day(s)")
-        print("\(TAG): 10 alarm notifications scheduled.")
+        print("\(TAG)Bedtime reminders and alarm notifications scheduled.")
+    }
+    
+    private func scheduleBedtimeReminder(for weekday: AlarmRepeat, alarmViewModel: AlarmViewModel) async {
+        guard let hour = alarmViewModel.sleepTime.hour,
+              let minute = alarmViewModel.sleepTime.minute else {
+            print("\(TAG)Invalid sleep time")
+            return
+        }
+        
+        let weekdayNumber = weekdayToCalendarWeekday(weekday)
+        
+        let content = UNMutableNotificationContent()
+        content.title = "🌙 Bedtime Reminder"
+        content.body = getBedtimeMessage(label: alarmViewModel.label)
+        content.sound = UNNotificationSound.default
+        content.categoryIdentifier = bedtimeCategoryIdentifier
+        content.userInfo = [
+            "isBedtime": true,
+            "alarmLabel": alarmViewModel.label
+        ]
+        
+        // Create trigger with weekday and time
+        var triggerDate = DateComponents()
+        triggerDate.weekday = weekdayNumber
+        triggerDate.hour = hour
+        triggerDate.minute = minute
+        triggerDate.second = 0
+        
+        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: true)
+        let identifier = "bedtime_\(weekday.rawValue.lowercased())"
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+        
+        do {
+            try await notificationCenter.add(request)
+        } catch {
+            print("\(TAG)Failed to schedule bedtime notification: \(error)")
+        }
     }
     
     private func scheduleAlarmForWeekday(_ weekday: AlarmRepeat, alarmViewModel: AlarmViewModel) async {
@@ -124,15 +163,30 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         }
     }
     
+    func cancelAllAlarmNotifications() {
+        notificationCenter.getPendingNotificationRequests { pendingRequests in
+            let alarmIdentifiers = pendingRequests
+                .filter { $0.identifier.hasPrefix("alarm_") || $0.identifier.hasPrefix("bedtime_") }
+                .map { $0.identifier }
+            
+            if !alarmIdentifiers.isEmpty {
+                self.notificationCenter.removePendingNotificationRequests(withIdentifiers: alarmIdentifiers)
+                print("\(self.TAG)Canceled \(alarmIdentifiers.count) pending notifications (alarms + bedtime)")
+            }
+        }
+        
+        print("\(TAG)All alarm notifications cancellation requested")
+    }
+    
     func cancelScheduleAlarm() {
         notificationCenter.getPendingNotificationRequests { pendingRequests in
             let pendingAlarmIdentifiers = pendingRequests
-                .filter { $0.identifier.hasPrefix("alarm_") }
+                .filter { $0.identifier.hasPrefix("alarm_") || $0.identifier.hasPrefix("bedtime_") }
                 .map { $0.identifier }
             
             if !pendingAlarmIdentifiers.isEmpty {
                 self.notificationCenter.removePendingNotificationRequests(withIdentifiers: pendingAlarmIdentifiers)
-                print("\(self.TAG)Canceled \(pendingAlarmIdentifiers.count) pending alarm notifications")
+                print("\(self.TAG)Canceled \(pendingAlarmIdentifiers.count) pending notifications (alarms + bedtime)")
             }
         }
         
@@ -149,6 +203,24 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         case .thursday: return 5
         case .friday: return 6
         case .saturday: return 7
+        }
+    }
+    
+    private func getBedtimeMessage(label: String) -> String {
+        let baseMessages = [
+            "Time to wind down and get ready for bed! 😴",
+            "It's bedtime! Sweet dreams! 🌙",
+            "Time to put your devices away and relax! 📱💤",
+            "Bedtime reminder: Get some good rest tonight! ✨",
+            "Time to sleep! Tomorrow's a new day! 🌟"
+        ]
+        
+        let randomMessage = baseMessages.randomElement() ?? baseMessages[0]
+        
+        if !label.isEmpty {
+            return "\(randomMessage) Don't forget your \(label) alarm is set for tomorrow!"
+        } else {
+            return randomMessage
         }
     }
     
@@ -181,31 +253,104 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     func printScheduledNotifications() async {
         let pendingRequests = await notificationCenter.pendingNotificationRequests()
         let alarmRequests = pendingRequests.filter { $0.identifier.hasPrefix("alarm_") }
+        let bedtimeRequests = pendingRequests.filter { $0.identifier.hasPrefix("bedtime_") }
         
-        print("\(TAG)=== SCHEDULED NOTIFICATIONS ===")
+        print("\(TAG)=== SCHEDULED NOTIFICATIONS DEBUG ===")
+        print("Total notifications pending: \(pendingRequests.count)")
         print("Total alarm notifications: \(alarmRequests.count)")
+        print("Total bedtime notifications: \(bedtimeRequests.count)")
         
-        for request in alarmRequests.sorted(by: { $0.identifier < $1.identifier }) {
+        let now = Date()
+        let calendar = Calendar.current
+        let currentWeekday = calendar.component(.weekday, from: now)
+        let currentHour = calendar.component(.hour, from: now)
+        let currentMinute = calendar.component(.minute, from: now)
+        
+        print("\nCurrent time info:")
+        print("  Date/Time: \(now)")
+        print("  Weekday: \(currentWeekday) (\(weekdayToString(currentWeekday)))")
+        print("  Hour: \(currentHour), Minute: \(currentMinute)")
+        
+        print("\n--- BEDTIME REMINDERS ---")
+        if bedtimeRequests.isEmpty {
+            print("❌ NO BEDTIME NOTIFICATIONS SCHEDULED!")
+        }
+        
+        for request in bedtimeRequests.sorted(by: { $0.identifier < $1.identifier }) {
             if let trigger = request.trigger as? UNCalendarNotificationTrigger {
-                print("ID: \(request.identifier)")
-                print("  Title: \(request.content.title)")
-                print("  Weekday: \(trigger.dateComponents.weekday ?? 0)")
-                print("  Time: \(trigger.dateComponents.hour ?? 0):\(String(format: "%02d", trigger.dateComponents.minute ?? 0))")
-                print("  Repeats: \(trigger.repeats)")
+                let triggerWeekday = trigger.dateComponents.weekday ?? 0
+                let triggerHour = trigger.dateComponents.hour ?? 0
+                let triggerMinute = trigger.dateComponents.minute ?? 0
+                
+                print("✅ ID: \(request.identifier)")
+                print("   Title: \(request.content.title)")
+                print("   Body: \(request.content.body)")
+                print("   Weekday: \(triggerWeekday) (\(weekdayToString(triggerWeekday)))")
+                print("   Time: \(triggerHour):\(String(format: "%02d", triggerMinute))")
+                print("   Repeats: \(trigger.repeats)")
+                
+                // Check if this should fire today
+                if triggerWeekday == currentWeekday {
+                    if (triggerHour > currentHour) || (triggerHour == currentHour && triggerMinute > currentMinute) {
+                        print("   🟢 SHOULD FIRE TODAY")
+                    } else {
+                        print("   🔴 ALREADY PASSED TODAY")
+                    }
+                } else {
+                    print("   🟡 DIFFERENT DAY")
+                }
+                print("---")
+            } else {
+                print("❌ Invalid trigger type for \(request.identifier)")
+            }
+        }
+        
+        print("\n--- ALARM NOTIFICATIONS ---")
+        let uniqueAlarms = Dictionary(grouping: alarmRequests) { request in
+            String(request.identifier.prefix(while: { $0 != "_" || !$0.isNumber }))
+        }
+        
+        for (baseId, requests) in uniqueAlarms.sorted(by: { $0.key < $1.key }) {
+            if let firstRequest = requests.first,
+               let trigger = firstRequest.trigger as? UNCalendarNotificationTrigger {
+                let triggerWeekday = trigger.dateComponents.weekday ?? 0
+                let triggerHour = trigger.dateComponents.hour ?? 0
+                let triggerMinute = trigger.dateComponents.minute ?? 0
+                
+                print("✅ \(baseId) (x\(requests.count) notifications)")
+                print("   Weekday: \(triggerWeekday) (\(weekdayToString(triggerWeekday)))")
+                print("   Time: \(triggerHour):\(String(format: "%02d", triggerMinute))")
                 print("---")
             }
         }
-        print("=== END NOTIFICATIONS ===")
+        print("=== END NOTIFICATIONS DEBUG ===")
+    }
+    
+    private func weekdayToString(_ weekday: Int) -> String {
+        switch weekday {
+        case 1: return "Sunday"
+        case 2: return "Monday"
+        case 3: return "Tuesday"
+        case 4: return "Wednesday"
+        case 5: return "Thursday"
+        case 6: return "Friday"
+        case 7: return "Saturday"
+        default: return "Unknown"
+        }
     }
     
     // MARK: - UNUserNotificationCenterDelegate
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         
-        cancelScheduleAlarm()
-        print("cancel notif from UNCenter willPresent")
-        
-        // Show notification even when app is in foreground
+        // Handle different types of notifications
         if notification.request.content.userInfo["isAlarm"] as? Bool == true {
+            // For alarm notifications, cancel all and navigate to game
+            cancelAllAlarmNotifications()
+            print("cancel alarm notifs from UNCenter willPresent")
+            completionHandler([.banner, .sound, .badge])
+        } else if notification.request.content.userInfo["isBedtime"] as? Bool == true {
+            // For bedtime notifications, just show the notification
+            print("Bedtime reminder shown")
             completionHandler([.banner, .sound, .badge])
         } else {
             completionHandler([])
@@ -214,11 +359,16 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
-        cancelScheduleAlarm()
-        print("cancel notif from UNCenter didReceive")
-        
-        navigateToGameScreen = true
-        
+        // Handle different types of notifications
+        if response.notification.request.content.userInfo["isAlarm"] as? Bool == true {
+            // For alarm notifications, cancel all and navigate to game
+            cancelAllAlarmNotifications()
+            print("cancel alarm notifs from UNCenter didReceive")
+            navigateToGameScreen = true
+        } else if response.notification.request.content.userInfo["isBedtime"] as? Bool == true {
+            // For bedtime notifications, just acknowledge
+            print("Bedtime reminder acknowledged")
+        }
         completionHandler()
     }
 }
