@@ -9,10 +9,13 @@ import SwiftUI
 import Combine
 
 struct LevelerGameScreen: View {
+    @Environment(\.dismiss) var dismiss
     @StateObject private var motion = LevelerMotionManager()
     @StateObject private var gameState = GameState()
     @State private var collisionTimer: Timer?
     @State private var showingTutorial = true
+    @State var isTargetReached: Bool = false
+    @AppStorage("navState") private var navState: String = GameNavigationState.game.rawValue
     
     // Sensitivity with smoother values
     private let pitchSensitivity: CGFloat = 9.0   // Slightly reduced from 10.0
@@ -45,6 +48,15 @@ struct LevelerGameScreen: View {
         }
         .onDisappear {
             collisionTimer?.invalidate()
+        }
+        .navigationBarBackButtonHidden()
+        .navigationDestination(isPresented: $isTargetReached) {
+            FinishedScreen()
+        }
+        .onAppear() {
+            if navState == GameNavigationState.home.rawValue {
+                dismiss()
+            }
         }
     }
     
@@ -146,6 +158,21 @@ struct LevelerGameScreen: View {
                 .foregroundColor(.black)
                 .cornerRadius(15)
                 .shadow(radius: 2)
+                
+                if gameState.isGameOver {
+                    Button("Finish Game") {
+                        navState = GameNavigationState.home.rawValue // reset navState
+                        isTargetReached = true
+                    }
+                    .font(.system(size: 20))
+                    .bold()
+                    .padding(.horizontal, 40)
+                    .padding(.vertical, 15)
+                    .background(Color(hex: "DBF173"))
+                    .foregroundColor(.black)
+                    .cornerRadius(15)
+                    .shadow(radius: 2)
+                }
             }
             .padding(30)
             .background(
@@ -330,4 +357,8 @@ struct Target: Identifiable {
     let id = UUID()
     let position: CGPoint
     let isPulsing: Bool
+}
+
+#Preview {
+    LevelerGameScreen()
 }

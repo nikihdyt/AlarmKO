@@ -143,13 +143,17 @@ struct AlarmScreen: View {
                 
             }
             .onChange(of: navStateRaw) { _, newValue in
-                if newValue == GameNavigationState.punchGame.rawValue {
+                if newValue == GameNavigationState.game.rawValue {
                     print("navState: \(navState) in the AlarmScreen")
                     navigateToAnotherScreen = true
                 }
             }
             .navigationDestination(isPresented: $navigateToAnotherScreen) {
+                if alarmViewModel.alarmGame.rawValue == "Punching Game" {
                     PunchTrackerScreen()
+                } else if alarmViewModel.alarmGame.rawValue == "Leveler Game" {
+                    LevelerGameScreen()
+                }
             }
             
         }

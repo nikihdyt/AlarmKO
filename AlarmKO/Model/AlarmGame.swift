@@ -14,6 +14,5 @@ enum AlarmGame: String, Hashable, CaseIterable {
 
 enum GameNavigationState: String {
     case home
-    case punchGame
-    case levelerGame
+    case game
 }

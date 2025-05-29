@@ -15,9 +15,8 @@ struct Punches {
 
 struct PunchTrackerScreen: View {
     @StateObject private var motionManager = PunchingMotionManager()
-//    @StateObject private var viewModel = HomeViewModel()
     
-    @AppStorage("navState") private var navState: String = GameNavigationState.punchGame.rawValue
+    @AppStorage("navState") private var navState: String = GameNavigationState.game.rawValue
     private let targetPunches = 4
     
     // Computed property to get punches data from motion manager
@@ -86,6 +85,7 @@ struct PunchTrackerScreen: View {
             .navigationDestination(isPresented: $isTargetReached) {
                 FinishedScreen()
             }
+            .navigationBarBackButtonHidden()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button{

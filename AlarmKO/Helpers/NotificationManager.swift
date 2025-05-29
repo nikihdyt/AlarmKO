@@ -365,7 +365,7 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
             cancelAllAlarmNotifications()
             print("cancel alarm notifs from UNCenter didReceive")
             
-            navState = GameNavigationState.punchGame.rawValue
+            navState = GameNavigationState.game.rawValue
             print("navState set to: {\(navState)} from notif center didReceive")
             
         } else if response.notification.request.content.userInfo["isBedtime"] as? Bool == true {

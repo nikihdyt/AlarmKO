@@ -8,21 +8,22 @@
 import SwiftUI
 
 struct FinishedScreen: View {
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 15) {
                 HStack(alignment: .top) {
-                    NavigationLink {
-                        Text("Go to homescreen")
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.black.secondary)
-                            .frame(width: 45, height: 45)
-                            .background(.lightGray, in: .circle)
-                            .contentShape(.circle)
-                    }
+                    Image(systemName: "xmark")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.black.secondary)
+                        .frame(width: 45, height: 45)
+                        .background(.lightGray, in: .circle)
+                        .contentShape(.circle)
+                        .onTapGesture {
+                            dismiss()
+                        }
                     
                     Spacer(minLength: 0)
                     
@@ -108,6 +109,7 @@ struct FinishedScreen: View {
                         .ignoresSafeArea()
                 }
             }
+            .navigationBarBackButtonHidden()
         }
     }
     
