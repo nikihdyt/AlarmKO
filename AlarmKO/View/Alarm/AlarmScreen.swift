@@ -14,6 +14,7 @@ struct AlarmScreen: View {
     @StateObject private var alarmManager = AlarmManager()
     @State private var bedtimeReminderTime = Date()
     @State private var wakeUpTime = Date()
+    @StateObject private var watchData = PhoneConnectivityManager()
     
     @AppStorage("navState") private var navStateRaw: String = GameNavigationState.home.rawValue
     
@@ -28,7 +29,27 @@ struct AlarmScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    HStack(spacing: 13) {
+                    
+                    Image(.alarmKOLogoText)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 150)
+                    
+                    CircularSleepRing(start: $bedtimeReminderTime, end: $wakeUpTime)
+                        .padding(50)
+                    
+                    HStack {
+                        Text("Settings")
+                            .font(.title3)
+                            .bold()
+                        
+                        
+                        
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    HStack {
                         AlarmCard(
                             title: "Bed Time",
                             subtitle: "Tonight",
@@ -39,6 +60,8 @@ struct AlarmScreen: View {
                         .onChange(of: bedtimeReminderTime) { _, newValue in
                             alarmViewModel.sleepTime = Calendar.current.dateComponents([.hour, .minute], from: newValue)
                         }
+                        
+                        Spacer(minLength: 0)
                         
                         AlarmCard(
                             title: "Wake Up",
@@ -51,31 +74,22 @@ struct AlarmScreen: View {
                             alarmViewModel.wakeUpTime = Calendar.current.dateComponents([.hour, .minute], from: newValue)
                         }
                     }
-                    .padding(.horizontal, 20)
-                    
-                    CircularSleepRing(start: $bedtimeReminderTime, end: $wakeUpTime)
-                        .padding()
-                    
-                    HStack {
-                        Text("Repeat")
-                            .font(.title3)
-                            .bold()
-
-                        Text(alarmViewModel.repeatDescription)
-                            .foregroundColor(.secondary)
-                        
-                        Spacer(minLength: 0)
-                    }
+                    //                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 20)
                     
                     WeekdaySelector(selectedDays: $alarmViewModel.selectedDays)
                         .padding(.horizontal, 20)
                     
-                    Text("Settings")
-                        .font(.title3)
-                        .bold()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
+                    //                    Text(alarmViewModel.repeatDescription)
+                    //                        .foregroundColor(.secondary)
+                    
+                    
+                    //
+                    //                    Text("Settings")
+                    //                        .font(.title3)
+                    //                        .bold()
+                    //                        .frame(maxWidth: .infinity, alignment: .leading)
+                    //                        .padding(.horizontal, 20)
                     
                     List {
                         Picker("Game", selection: $alarmViewModel.alarmGame) {
@@ -91,6 +105,7 @@ struct AlarmScreen: View {
                     .frame(minHeight: 100)
                     .clipShape(.rect(cornerRadius: 20))
                     .scrollDisabled(true)
+                    
                     
                     Text("Games")
                         .font(.title3)
@@ -111,6 +126,11 @@ struct AlarmScreen: View {
                     }
                     
                     Section("Audio Status") {
+                        
+                        Text("\(watchData.bpm) BPM")
+                            .font(.system(size: 30, weight: .bold))
+                            .foregroundColor(.red)
+                        
                         HStack {
                             Text("White Noise:")
                             Spacer()
@@ -161,9 +181,24 @@ struct AlarmScreen: View {
                         }
                         .foregroundColor(.blue)
                     }
+                    
+                    
+                    Section("Testing") {
+                        NavigationLink(destination: HeartRateGameScreen()) {
+                            Text("Test Heart Rate Game")
+                                .foregroundColor(.blue)
+                        }
+                        
+                        NavigationLink(destination: PunchTrackerScreen()) {
+                            Text("Punching Game")
+                                .foregroundColor(.blue)
+                        }
+                        NavigationLink(destination: LevelerGameScreen()) {
+                            Text("Leveler Game")
+                                .foregroundColor(.blue)
+                        }
+                    }
                 }
-                .navigationTitle("AlarmKO")
-                .navigationBarTitleDisplayMode(.inline)
                 .onAppear {
                     // Initialize date pickers with saved values
                     alarmViewModel.setNotificationManager(notificationManager)

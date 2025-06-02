@@ -4,7 +4,7 @@ struct CircularSleepRing: View {
     @Binding var start: Date
     @Binding var end: Date
 
-    @State private var ringSize: CGFloat = 200
+    @State private var ringSize: CGFloat = 250
 
     var body: some View {
         ZStack {
@@ -15,7 +15,7 @@ struct CircularSleepRing: View {
             
             Image("24Hours")
                 .resizable()
-                .frame(width: 155, height: 155)
+                .frame(width: 180, height: 180)
 
             // Sleep interval arc (handles cross-midnight)
             if startAngleRatio <= endAngleRatio {
@@ -43,7 +43,7 @@ struct CircularSleepRing: View {
             // Btn - Bedtime
             Image("CirBedtime")
                 .resizable()
-                .frame(width: 30, height: 30)
+                .frame(width: 50, height: 50)
                 .position(self.position(for: startAngleRatio))
                 .gesture(DragGesture().onChanged { value in
                     self.start = self.angleToDate(from: value.location)
@@ -52,7 +52,7 @@ struct CircularSleepRing: View {
             // Btn - Wakeup
             Image("CirAlarmIcon")
                 .resizable()
-                .frame(width: 30, height: 30)
+                .frame(width: 50, height: 50)
                 .position(self.position(for: endAngleRatio))
                 .gesture(DragGesture().onChanged { value in
                     self.end = self.angleToDate(from: value.location)

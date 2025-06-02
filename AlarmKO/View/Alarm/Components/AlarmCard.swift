@@ -33,15 +33,16 @@ struct AlarmCard: View {
                         .kerning(1)
                 }
             }
-            Button{
-                showingTimePicker = true
-            } label: {
-                Text(time.formatted(date: .omitted, time: .shortened))
-                    .font(.system(size: 32, weight: .heavy))
-                    .kerning(1)
-                    .foregroundColor(.white)
-            }
-            .buttonStyle(PlainButtonStyle())
+            Text(time.formatted(date: .omitted, time: .shortened))
+                .font(.system(size: 32, weight: .heavy))
+                .kerning(1)
+                .foregroundColor(.white)
+//            Button{
+//                
+//            } label: {
+//                
+//            }
+//            .buttonStyle(PlainButtonStyle())
         }
         .padding(.vertical, 12)
         .padding(.trailing, 25)
@@ -50,6 +51,9 @@ struct AlarmCard: View {
         .cornerRadius(15)
         .sheet(isPresented: $showingTimePicker) {
             TimePickerSheet(selectedTime: $time, title: title)
+        }
+        .onTapGesture {
+            showingTimePicker = true
         }
     }
 }

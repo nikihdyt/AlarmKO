@@ -23,8 +23,8 @@ struct WeekdaySelector: View {
                     Text(day.shortName)
                         .font(.caption)
                         .fontWeight(.medium)
-                        .frame(width: 40, height: 40)
-                        .background(selectedDays.contains(day) ? Color.prim : Color.terti)
+                        .frame(width: 45, height: 45)
+                        .background(selectedDays.contains(day) ? Color.prim : Color.darkGray)
                         .foregroundColor(selectedDays.contains(day) ? .black : .primary)
                         .clipShape(Circle())
                 }
