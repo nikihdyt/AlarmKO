@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 @MainActor
 class AlarmViewModel: ObservableObject {
@@ -15,6 +16,7 @@ class AlarmViewModel: ObservableObject {
     @Published var wakeUpTime: DateComponents {
         didSet {
             saveSettings()
+            saveWakeUpTimeForWidget()
             if isActive {
                 scheduleNotifications()
                 scheduleAudioSequence()
@@ -48,6 +50,7 @@ class AlarmViewModel: ObservableObject {
     
     private var notificationManager: NotificationManager?
     private var alarmManager: AlarmManager?
+    private let sharedDefaults = UserDefaults(suiteName: "group.com.AlarmKO")
     
     init(notificationManager: NotificationManager? = nil) {
         self.notificationManager = notificationManager
@@ -82,7 +85,16 @@ class AlarmViewModel: ObservableObject {
         }
     }
     
+    private func saveWakeUpTimeForWidget() {
+        sharedDefaults?.set(wakeUpTime.hour ?? 0, forKey: "widgetWakeHour")
+        sharedDefaults?.set(wakeUpTime.minute ?? 0, forKey: "widgetWakeMinute")
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+    
     private func saveSettings() {
+        sharedDefaults?.set(wakeUpTime.hour ?? 0, forKey: "wakeHour")
+        sharedDefaults?.set(wakeUpTime.minute ?? 0, forKey: "wakeMinute")
+        
         UserDefaults.standard.set(sleepTime.hour ?? 0, forKey: "sleepHour")
         UserDefaults.standard.set(sleepTime.minute ?? 0, forKey: "sleepMinute")
         UserDefaults.standard.set(wakeUpTime.hour ?? 0, forKey: "wakeHour")
