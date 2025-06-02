@@ -53,11 +53,11 @@ struct LevelerGameScreen: View {
         .navigationDestination(isPresented: $isTargetReached) {
             FinishedScreen()
         }
-        .onAppear() {
-            if navState == GameNavigationState.home.rawValue {
-                dismiss()
-            }
-        }
+//        .onAppear() {
+//            if navState == GameNavigationState.home.rawValue {
+//                dismiss()
+//            }
+//        }
     }
     
     private var gameContent: some View {
