@@ -14,6 +14,7 @@ struct AlarmScreen: View {
     @StateObject private var alarmManager = AlarmManager()
     @State private var bedtimeReminderTime = Date()
     @State private var wakeUpTime = Date()
+    @StateObject private var watchData = PhoneConnectivityManager()
     
     @AppStorage("navState") private var navStateRaw: String = GameNavigationState.home.rawValue
     
@@ -58,6 +59,13 @@ struct AlarmScreen: View {
                     }
                 }
                 
+                Section("Testing") {
+                    NavigationLink(destination: HeartRateGameScreen()) {
+                        Text("Test Heart Rate Game")
+                            .foregroundColor(.blue)
+                    }
+                }
+                
                 Section("Settings") {
                     TextField("Label", text: $alarmViewModel.label)
                     
@@ -77,6 +85,11 @@ struct AlarmScreen: View {
                 }
                 
                 Section("Audio Status") {
+                    
+                    Text("\(watchData.bpm) BPM")
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundColor(.red)
+                    
                     HStack {
                         Text("White Noise:")
                         Spacer()
@@ -153,6 +166,9 @@ struct AlarmScreen: View {
                     PunchTrackerScreen()
                 } else if alarmViewModel.alarmGame.rawValue == "Leveler Game" {
                     LevelerGameScreen()
+                }
+                else if alarmViewModel.alarmGame.rawValue == "Heart Rate Game" {
+                    HeartRateGameScreen()
                 }
             }
             
