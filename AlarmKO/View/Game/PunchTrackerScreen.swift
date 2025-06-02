@@ -15,8 +15,13 @@ struct Punches {
 
 struct PunchTrackerScreen: View {
     @StateObject private var motionManager = PunchingMotionManager()
-    
     @AppStorage("navState") private var navState: String = GameNavigationState.game.rawValue
+    @Environment(\.scenePhase) private var scenePhase
+    // Check if target is reached
+    @State var isGameStarted: Bool = false
+    @State var isTargetReached: Bool = false
+    @State private var startScreenOpacity: Double = 1.0
+    
     private let targetPunches = 4
     
     // Computed property to get punches data from motion manager
@@ -29,84 +34,67 @@ struct PunchTrackerScreen: View {
             Punches(name: "punchesLeft", amount: punchesLeft),
         ]
     }
-    
-    // Check if target is reached
-    
-    @State var isTargetReached: Bool = false
     //    motionManager.punches.count >= targetPunches
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 15) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Punch forward \(targetPunches)x")
-                        .font(.largeTitle.bold())
+            if !isGameStarted {
+                PunchTrackerStartScreen(isStartGame: $isGameStarted)
+                    .opacity(isGameStarted ? 0 : 1)
+            } else {
+                VStack(spacing: 15) {
+                    VStack(alignment: .center, spacing: 8) {
+                        Text("Punch forward \(targetPunches)x")
+                            .font(.largeTitle.bold())
+                        
+                        Text("Move your phone to the speed of 20 G!")
+                            .fontWeight(.medium)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 20)
                     
-                    Text("Move your phone to the speed of 20 G!")
-                        .fontWeight(.medium)
+                    Spacer(minLength: 0)
+                    
+                    PunchTrackerView(punches)
+                    
+                    Spacer(minLength: 0)
+                    
+                    LiveAccelerationCardView()
+                    
+                    Text("A pro boxer's punch hits with 53-65Gs - that's up to 2,296 km/h of force.")
                         .foregroundStyle(.secondary)
+                    
+                    Spacer(minLength: 0)
                 }
-                .padding(.top, 20)
-                .hSpacing(.leading)
-                
-                // Success message when target is reached
-                //                if isTargetReached {
-                //                    HStack {
-                //                        Image(systemName: "checkmark.circle.fill")
-                //                            .foregroundColor(.green)
-                //                            .font(.title2)
-                //
-                //                        Text("Target Reached! 🎉")
-                //                            .font(.title2)
-                //                            .fontWeight(.bold)
-                //                            .foregroundColor(.green)
-                //                    }
-                //                    .padding()
-                //                    .background(Color.green.opacity(0.1))
-                //                    .cornerRadius(10)
-                //                }
-                
-                Spacer(minLength: 0)
-                
-                PunchTrackerView(punches)
-                
-                Spacer(minLength: 0)
-                
-                LiveAccelerationCardView()
-                
-                Text("A pro boxer's punch hits with 53-65Gs - that's up to 2,296 km/h of force.")
-                    .foregroundStyle(.secondary)
-                
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 20)
-            .navigationTitle("Punch Tracker")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(isPresented: $isTargetReached) {
-                FinishedScreen()
-            }
-            .navigationBarBackButtonHidden()
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button{
-                        motionManager.resetPunches()
-                    } label: {
-                        Text("Reset Punches")
-                            .foregroundStyle(.red)
+                .padding(.horizontal, 20)
+                .navigationDestination(isPresented: $isTargetReached) {
+                    FinishedScreen()
+                }
+                .navigationBarBackButtonHidden()
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button{
+                            motionManager.resetPunches()
+                        } label: {
+                            Text("Reset Punches")
+                                .foregroundStyle(.red)
+                        }
                     }
                 }
-            }
-            .onChange(of: motionManager.punches.count) { oldValue, newValue in
-                if newValue >= targetPunches {
-                    isTargetReached = true
-                    navState = GameNavigationState.home.rawValue // reset navState
-                    print("navState changed to: {\(navState)} at PunchTrackerScreen.onChange")
+                .onChange(of: motionManager.punches.count) { oldValue, newValue in
+                    if newValue >= targetPunches {
+                        isTargetReached = true
+                        navState = GameNavigationState.home.rawValue // reset navState
+                        print("navState changed to: {\(navState)} at PunchTrackerScreen.onChange")
+                    }
                 }
-            }
-            .onAppear() {
-                print("PunchTrackerScreen is appearing")
+                .onAppear() {
+                    print("PunchTrackerScreen is appearing")
+                }
+                .opacity(isGameStarted ? 1 : 0)
             }
         }
+        .animation(.easeInOut(duration: 0.3), value: isGameStarted)
     }
     
     /// Punch Tracker View

@@ -8,13 +8,12 @@
 import SwiftUI
 
 struct AlarmScreen: View {
-    
     @StateObject private var alarmViewModel = AlarmViewModel()
     @StateObject private var notificationManager = NotificationManager()
     @StateObject private var alarmManager = AlarmManager()
+    @StateObject private var watchData = PhoneConnectivityManager()
     @State private var bedtimeReminderTime = Date()
     @State private var wakeUpTime = Date()
-    @StateObject private var watchData = PhoneConnectivityManager()
     
     @AppStorage("navState") private var navStateRaw: String = GameNavigationState.home.rawValue
     
@@ -36,15 +35,11 @@ struct AlarmScreen: View {
                         .frame(width: 150)
                     
                     CircularSleepRing(start: $bedtimeReminderTime, end: $wakeUpTime)
-                        .padding(50)
+                        .padding(.vertical, 30)
                     
                     HStack {
                         Text("Settings")
-                            .font(.title3)
-                            .bold()
-                        
-                        
-                        
+                            .font(.title2.bold())
                         Spacer(minLength: 0)
                     }
                     .padding(.horizontal, 20)
@@ -74,24 +69,19 @@ struct AlarmScreen: View {
                             alarmViewModel.wakeUpTime = Calendar.current.dateComponents([.hour, .minute], from: newValue)
                         }
                     }
-                    //                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 20)
                     
                     WeekdaySelector(selectedDays: $alarmViewModel.selectedDays)
                         .padding(.horizontal, 20)
                     
-                    //                    Text(alarmViewModel.repeatDescription)
-                    //                        .foregroundColor(.secondary)
-                    
-                    
-                    //
-                    //                    Text("Settings")
-                    //                        .font(.title3)
-                    //                        .bold()
-                    //                        .frame(maxWidth: .infinity, alignment: .leading)
-                    //                        .padding(.horizontal, 20)
-                    
                     List {
+                        HStack {
+                            Text("Repeat")
+                            Spacer()
+                            Text(alarmViewModel.repeatDescription)
+                                .foregroundStyle(.gray)
+                        }
+                        
                         Picker("Game", selection: $alarmViewModel.alarmGame) {
                             ForEach(AlarmGame.allCases, id: \.self) { game in
                                 Text(game.rawValue)
@@ -99,19 +89,16 @@ struct AlarmScreen: View {
                         }
                         
                         Toggle("Active", isOn: $alarmViewModel.isActive)
-                        
+                            .tint(.prim)
                     }
                     .listStyle(InsetListStyle())
-                    .frame(minHeight: 100)
+                    .frame(minHeight: 150)
                     .clipShape(.rect(cornerRadius: 20))
                     .scrollDisabled(true)
                     
-                    
-                    Text("Games")
+                    Text("Try the games out!")
                         .font(.title3)
                         .bold()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
