@@ -34,19 +34,13 @@ struct AlarmCard: View {
                 }
             }
             Text(time.formatted(date: .omitted, time: .shortened))
-                .font(.system(size: 32, weight: .heavy))
+                .font(.title.bold())
                 .kerning(1)
                 .foregroundColor(.white)
-//            Button{
-//                
-//            } label: {
-//                
-//            }
-//            .buttonStyle(PlainButtonStyle())
         }
         .padding(.vertical, 12)
         .padding(.trailing, 25)
-        .frame(width: 164, height: 112)
+        .frame(width: 170, height: 110)
         .background(Color("terti"))
         .cornerRadius(15)
         .sheet(isPresented: $showingTimePicker) {
@@ -66,7 +60,7 @@ struct TimePickerSheet: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                Text("Set \(title.lowercased()) time")
+                Text("Set \(title.lowercased())")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .padding(.top)

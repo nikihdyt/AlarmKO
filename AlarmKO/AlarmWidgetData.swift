@@ -4,7 +4,7 @@ struct AlarmWidgetData {
     let wakeUpTime: DateComponents
     
     static func loadWakeUpTimeDateComponent() -> DateComponents {
-        let sharedDefaults = UserDefaults(suiteName: "group.com.AlarmKO")
+        let sharedDefaults = UserDefaults(suiteName: "group.com.zeeqa.AlarmKO")
         
         let hour = sharedDefaults?.integer(forKey: "widgetWakeHour") ?? 8
         let minute = sharedDefaults?.integer(forKey: "widgetWakeMinute") ?? 0

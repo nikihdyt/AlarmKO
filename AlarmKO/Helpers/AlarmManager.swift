@@ -16,10 +16,10 @@ class AlarmManager: ObservableObject {
     @Published var isWhiteNoisePlaying = false
     @Published var isAlarmPlaying = false
     
-    private var whiteNoiseTimer: Timer?
+//    private var whiteNoiseTimer: Timer?
     private var alarmTimer: Timer?
     private var alarmViewModel: AlarmViewModel?
-    private let whiteNoiseLeadTime: TimeInterval = 60
+//    private let whiteNoiseLeadTime: TimeInterval = 60
     
     private let TAG = "Alarm Manager: "
     
@@ -48,14 +48,18 @@ class AlarmManager: ObservableObject {
         
         guard alarmViewModel.isActive else {
             print("\(TAG)Alarm is not active")
+            stopWhiteNoise()
             return
         }
         
         let selectedDays = alarmViewModel.selectedDays
         guard !selectedDays.isEmpty else {
             print("\(TAG)No days selected for alarm")
+            stopWhiteNoise()
             return
         }
+        
+        startWhiteNoise()
     }
     
     func scheduleAlarmSequence() {
@@ -71,87 +75,66 @@ class AlarmManager: ObservableObject {
         
         cancelAlarmSequence()
         
+        startWhiteNoise()
+        
         for day in viewModel.selectedDays {
             scheduleForDay(day: day, viewModel: viewModel)
         }
     }
     
     private func scheduleForDay(day: AlarmRepeat, viewModel: AlarmViewModel) {
-        let now = Date()
-        let calendar = Calendar.current
-        
-        guard let wakeHour = viewModel.wakeUpTime.hour,
-              let wakeMinute = viewModel.wakeUpTime.minute else {
-            print("\(TAG)Invalid wake up time settings")
-            return
-        }
-        
-        // Get the next occurrence of this weekday
-        let targetWeekday = weekdayToCalendarWeekday(day)
-        let currentWeekday = calendar.component(.weekday, from: now)
-        
-        var daysToAdd = targetWeekday - currentWeekday
-        if daysToAdd < 0 {
-            daysToAdd += 7 // Next week
-        }
-        
-        // If it's today, check if we haven't passed the white noise start time yet
-        if targetWeekday == currentWeekday {
-            let todayWakeTime = calendar.date(bySettingHour: wakeHour, minute: wakeMinute, second: 0, of: now)
-            if let todayWake = todayWakeTime {
-                let todayWhiteNoiseTime = todayWake.addingTimeInterval(-whiteNoiseLeadTime)
-                if todayWhiteNoiseTime > now {
-                    daysToAdd = 0 // Use today
-                } else {
-                    daysToAdd = 7 // Schedule for next week
-                }
+            let now = Date()
+            let calendar = Calendar.current
+            
+            guard let wakeHour = viewModel.wakeUpTime.hour,
+                  let wakeMinute = viewModel.wakeUpTime.minute else {
+                print("\(TAG)Invalid wake up time settings")
+                return
             }
-        } else if daysToAdd == 0 {
-            daysToAdd = 7 // If same weekday but already passed, next week
-        }
-        
-        guard let targetDate = calendar.date(byAdding: .day, value: daysToAdd, to: now) else {
-            print("\(TAG)Could not calculate target date")
-            return
-        }
-        
-        // Create wake time for the target date
-        guard let wakeTime = calendar.date(bySettingHour: wakeHour, minute: wakeMinute, second: 0, of: targetDate) else {
-            print("\(TAG)Could not create wake time")
-            return
-        }
-        
-        // Calculate white noise start time (5 minutes before wake time)
-        let whiteNoiseTime = wakeTime.addingTimeInterval(-whiteNoiseLeadTime)
-        
-        // Only schedule if both times are in the future
-        if whiteNoiseTime > now {
-            scheduleWhiteNoiseTimer(for: whiteNoiseTime)
-        }
-        
-        if wakeTime > now {
-            scheduleAlarmTimer(for: wakeTime)
-        }
-        
-        print("\(TAG)Scheduled for \(day.rawValue):")
-        print("  White noise: \(formatTime(whiteNoiseTime))")
-        print("  Alarm: \(formatTime(wakeTime))")
-    }
-    
-    
-    
-    private func scheduleWhiteNoiseTimer(for whiteNoiseTime: Date) {
-        let timeInterval = whiteNoiseTime.timeIntervalSinceNow
-        
-        if timeInterval > 0 {
-            whiteNoiseTimer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) { [weak self] _ in
-                Task { @MainActor in
-                    self?.startWhiteNoise()
-                }
+            
+            // Get the next occurrence of this weekday
+            let targetWeekday = weekdayToCalendarWeekday(day)
+            let currentWeekday = calendar.component(.weekday, from: now)
+            
+            var daysToAdd = targetWeekday - currentWeekday
+            if daysToAdd < 0 {
+                daysToAdd += 7 // Next week
             }
-            print("\(TAG)White noise timer scheduled for \(timeInterval) seconds from now (\(formatTime(whiteNoiseTime)))")
+            
+            // If it's today, check if we haven't passed the alarm time yet
+            if targetWeekday == currentWeekday {
+                let todayWakeTime = calendar.date(bySettingHour: wakeHour, minute: wakeMinute, second: 0, of: now)
+                if let todayWake = todayWakeTime {
+                    if todayWake > now {
+                        daysToAdd = 0 // Use today
+                    } else {
+                        daysToAdd = 7 // Schedule for next week
+                    }
+                }
+            } else if daysToAdd == 0 {
+                daysToAdd = 7 // If same weekday but already passed, next week
+            }
+            
+            guard let targetDate = calendar.date(byAdding: .day, value: daysToAdd, to: now) else {
+                print("\(TAG)Could not calculate target date")
+                return
+            }
+            
+            // Create wake time for the target date
+            guard let wakeTime = calendar.date(bySettingHour: wakeHour, minute: wakeMinute, second: 0, of: targetDate) else {
+                print("\(TAG)Could not create wake time")
+                return
+            }
+            
+            // Only schedule alarm timer if wake time is in the future
+            if wakeTime > now {
+                scheduleAlarmTimer(for: wakeTime)
+            }
+            
+            print("\(TAG)Scheduled alarm for \(day.rawValue): \(formatTime(wakeTime))")
         }
-    }
+    
+    
     
     private func scheduleAlarmTimer(for alarmTime: Date) {
         let timeInterval = alarmTime.timeIntervalSinceNow
@@ -167,13 +150,11 @@ class AlarmManager: ObservableObject {
     }
     
     func cancelAlarmSequence() {
-        whiteNoiseTimer?.invalidate()
         alarmTimer?.invalidate()
-        whiteNoiseTimer = nil
         alarmTimer = nil
         
-        stopWhiteNoise()
         stopAlarmSound()
+        stopWhiteNoise()
         
         print("\(TAG)Alarm sequence canceled")
     }
@@ -281,7 +262,6 @@ class AlarmManager: ObservableObject {
         print("\(TAG)=== ALARM MANAGER STATUS ===")
         print("White noise playing: \(isWhiteNoisePlaying)")
         print("Alarm playing: \(isAlarmPlaying)")
-        print("Sleep timer active: \(whiteNoiseTimer != nil)")
         print("Alarm timer active: \(alarmTimer != nil)")
         
         if let settings = alarmViewModel {

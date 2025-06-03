@@ -31,7 +31,6 @@ struct WeekdaySelector: View {
                 .buttonStyle(PlainButtonStyle())
             }
         }
-        .padding(.vertical, 8)
     }
 }
 

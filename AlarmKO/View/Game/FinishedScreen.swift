@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FinishedScreen: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var alarmViewModel: AlarmViewModel
     
     var body: some View {
         NavigationStack {
@@ -22,6 +23,9 @@ struct FinishedScreen: View {
                         .background(.lightGray, in: .circle)
                         .contentShape(.circle)
                         .onTapGesture {
+                            alarmViewModel.resetAlarmWithCompletion {
+                                print("Reset alarm")
+                            }
                             dismiss()
                         }
                     
@@ -171,4 +175,5 @@ struct FinishedScreen: View {
 #Preview {
     FinishedScreen()
         .preferredColorScheme(.dark)
+        .environmentObject(AlarmViewModel())
 }
