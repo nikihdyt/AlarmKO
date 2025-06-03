@@ -14,6 +14,7 @@ struct LevelerGameScreen: View {
     @StateObject private var gameState = GameState()
     @State private var collisionTimer: Timer?
     @State private var showingTutorial = true
+    private let targetPoints = 35
     @State var isTargetReached: Bool = false
     @AppStorage("navState") private var navState: String = GameNavigationState.game.rawValue
     
@@ -38,14 +39,6 @@ struct LevelerGameScreen: View {
                 tutorialOverlay
             }
         }
-        .onAppear {
-            // Improve motion manager update interval
-            motion.updateInterval = 0.02 // Faster update rate (50Hz)
-            gameState.startGame()
-            
-            // Tutorial shows on start, game actually begins after dismissing tutorial
-            showingTutorial = true
-        }
         .onDisappear {
             collisionTimer?.invalidate()
         }
@@ -53,11 +46,26 @@ struct LevelerGameScreen: View {
         .navigationDestination(isPresented: $isTargetReached) {
             FinishedScreen()
         }
-//        .onAppear() {
-//            if navState == GameNavigationState.home.rawValue {
-//                dismiss()
-//            }
-//        }
+        .onChange(of: gameState.score) {
+            oldValue, newValue in
+            if newValue >= targetPoints {
+                isTargetReached = true
+                navState = GameNavigationState.home.rawValue // reset navState
+                print("navState changed to: {\(navState)} at LevelerGameScreen.onChange")
+            }
+            
+        }
+        .onAppear {
+            if navState == GameNavigationState.home.rawValue {
+                dismiss()
+            }
+            // Improve motion manager update interval
+            motion.updateInterval = 0.02 // Faster update rate (50Hz)
+            gameState.startGame()
+            
+            // Tutorial shows on start, game actually begins after dismissing tutorial
+            showingTutorial = true
+        }
     }
     
     private var gameContent: some View {
@@ -161,8 +169,7 @@ struct LevelerGameScreen: View {
                 
                 if gameState.isGameOver {
                     Button("Finish Game") {
-                        navState = GameNavigationState.home.rawValue // reset navState
-                        isTargetReached = true
+                         // reset navState
                     }
                     .font(.system(size: 20))
                     .bold()
