@@ -210,8 +210,10 @@ struct AlarmScreen: View {
                 .navigationDestination(isPresented: $navigateToAnotherScreen) {
                     if alarmViewModel.alarmGame.rawValue == "Punching Game" {
                         PunchTrackerScreen()
+                            .environmentObject(alarmViewModel)
                     } else if alarmViewModel.alarmGame.rawValue == "Leveler Game" {
                         LevelerGameScreen()
+                            .environmentObject(alarmViewModel)
                     }
                 }
             }

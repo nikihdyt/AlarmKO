@@ -34,7 +34,7 @@ struct AlarmCard: View {
                 }
             }
             Text(time.formatted(date: .omitted, time: .shortened))
-                .font(.system(size: 32, weight: .heavy))
+                .font(.title.bold())
                 .kerning(1)
                 .foregroundColor(.white)
         }

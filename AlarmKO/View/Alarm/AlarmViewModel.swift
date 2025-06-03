@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 @MainActor
 class AlarmViewModel: ObservableObject {
@@ -15,6 +16,7 @@ class AlarmViewModel: ObservableObject {
     @Published var wakeUpTime: DateComponents {
         didSet {
             saveSettings()
+            saveWakeUpTimeForWidget()
             if isActive {
                 scheduleNotifications()
                 scheduleAudioSequence()
@@ -48,6 +50,7 @@ class AlarmViewModel: ObservableObject {
     
     private var notificationManager: NotificationManager?
     private var alarmManager: AlarmManager?
+    private let sharedDefaults = UserDefaults(suiteName: "group.com.zeeqa.AlarmKO")
     
     init(notificationManager: NotificationManager? = nil) {
         self.notificationManager = notificationManager
@@ -82,7 +85,16 @@ class AlarmViewModel: ObservableObject {
         }
     }
     
+    private func saveWakeUpTimeForWidget() {
+        sharedDefaults?.set(wakeUpTime.hour ?? 0, forKey: "widgetWakeHour")
+        sharedDefaults?.set(wakeUpTime.minute ?? 0, forKey: "widgetWakeMinute")
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+    
     private func saveSettings() {
+        sharedDefaults?.set(wakeUpTime.hour ?? 0, forKey: "wakeHour")
+        sharedDefaults?.set(wakeUpTime.minute ?? 0, forKey: "wakeMinute")
+        
         UserDefaults.standard.set(sleepTime.hour ?? 0, forKey: "sleepHour")
         UserDefaults.standard.set(sleepTime.minute ?? 0, forKey: "sleepMinute")
         UserDefaults.standard.set(wakeUpTime.hour ?? 0, forKey: "wakeHour")
@@ -142,6 +154,7 @@ class AlarmViewModel: ObservableObject {
             if isActive {
                 print("AlarmSettings: Alarm turned ON - scheduling notifications")
                 await notificationManager.scheduleNotification(for: self)
+                alarmManager.setupAudioSession()
                 alarmManager.scheduleAlarmSequence()
             } else {
                 print("AlarmSettings: Alarm turned OFF - canceling notifications")
@@ -165,4 +178,33 @@ class AlarmViewModel: ObservableObject {
         alarmManager.scheduleAlarmSequence()
     }
     
+    func resetAlarm() {
+        print("AlarmViewModel: Resetting alarm...")
+        
+        // Turn off the alarm first
+        isActive = false
+        
+        // Give a small delay to ensure the off state is processed
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Turn the alarm back on
+            self.isActive = true
+            print("AlarmViewModel: Alarm reset completed")
+        }
+    }
+    
+    /// Alternative method if you need more control over the reset process
+    func resetAlarmWithCompletion(completion: @escaping () -> Void = {}) {
+        print("AlarmViewModel: Resetting alarm with completion...")
+        
+        // Turn off the alarm first
+        isActive = false
+        
+        // Give a small delay to ensure the off state is processed
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Turn the alarm back on
+            self.isActive = true
+            print("AlarmViewModel: Alarm reset completed")
+            completion()
+        }
+    }
 }

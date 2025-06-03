@@ -18,7 +18,6 @@ struct AlarmKOApp: App {
             ContentView()
                 .environmentObject(notificationManager)
         }
-//        .modelContainer(for: Alarm.self)
     }
 }
 

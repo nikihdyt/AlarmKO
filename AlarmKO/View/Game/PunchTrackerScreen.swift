@@ -15,6 +15,7 @@ struct Punches {
 
 struct PunchTrackerScreen: View {
     @StateObject private var motionManager = PunchingMotionManager()
+    @EnvironmentObject var alarmViewModel: AlarmViewModel
     @AppStorage("navState") private var navState: String = GameNavigationState.game.rawValue
     @Environment(\.scenePhase) private var scenePhase
     // Check if target is reached
@@ -69,6 +70,7 @@ struct PunchTrackerScreen: View {
                 .padding(.horizontal, 20)
                 .navigationDestination(isPresented: $isTargetReached) {
                     FinishedScreen()
+                        .environmentObject(alarmViewModel)
                 }
                 .navigationBarBackButtonHidden()
                 .toolbar {
@@ -84,6 +86,7 @@ struct PunchTrackerScreen: View {
                 .onChange(of: motionManager.punches.count) { oldValue, newValue in
                     if newValue >= targetPunches {
                         isTargetReached = true
+                        alarmViewModel.resetAlarm()
                         navState = GameNavigationState.home.rawValue // reset navState
                         print("navState changed to: {\(navState)} at PunchTrackerScreen.onChange")
                     }
@@ -185,4 +188,5 @@ struct PunchTrackerScreen: View {
 #Preview {
     PunchTrackerScreen(isTargetReached: false)
         .preferredColorScheme(.dark)
+        .environmentObject(AlarmViewModel())
 }
