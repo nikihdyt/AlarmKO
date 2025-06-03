@@ -36,11 +36,6 @@ struct HeartRateGameScreen: View {
             .navigationDestination(isPresented: $isTargetReached) {
                 HeartRateFinishedScreen()
             }
-//            .onAppear {
-//                if navState == GameNavigationState.home.rawValue {
-//                    dismiss()
-//                }
-//            }
             .onChange(of: watchData.bpm) { oldValue, newValue in
                 handleHeartRateChange(newValue)
             }
@@ -63,12 +58,6 @@ struct HeartRateGameScreen: View {
                 
                 Spacer()
                 
-                Text("Heartbeat Tracker")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                
-                Spacer()
                 
                 // Invisible spacer for centering
                 HStack(spacing: 8) {
@@ -104,14 +93,16 @@ struct HeartRateGameScreen: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
+                    .fixedSize()
                 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 5) {
                     InstructionRow(number: "1", text: "Your heart rate must reach \(targetHeartRate) bpm.")
                     InstructionRow(number: "2", text: "Hold the bpm for 10 seconds!")
                     InstructionRow(number: "3", text: "Real time heart tracking.")
                     InstructionRow(number: "4", text: "Hit the target, wake up!")
                 }
             }
+            .hSpacing(.leading)
             .padding(.horizontal, 30)
             
             Spacer()
@@ -120,16 +111,16 @@ struct HeartRateGameScreen: View {
             Button {
                 startGame()
             } label: {
-                Text("Get started")
-                    .font(.title3)
+                Text("Start Game!")
+                    .frame(maxWidth: .infinity)
                     .fontWeight(.semibold)
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
+                    .padding(.vertical, 15)
                     .background(Color.red)
                     .cornerRadius(12)
             }
-            .padding(.horizontal, 30)
+            .padding(.horizontal, 20)
             .padding(.bottom, 40)
         }
     }
@@ -148,13 +139,6 @@ struct HeartRateGameScreen: View {
                     }
                     .foregroundColor(.white)
                 }
-                
-                Spacer()
-                
-                Text("Heartbeat Tracker")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
                 
                 Spacer()
                 
@@ -283,10 +267,8 @@ struct InstructionRow: View {
                 .font(.body)
                 .fontWeight(.bold)
                 .foregroundColor(.red)
-                .frame(width: 20, alignment: .leading)
             
             Text(text)
-                .font(.body)
                 .foregroundColor(.gray)
         }
     }

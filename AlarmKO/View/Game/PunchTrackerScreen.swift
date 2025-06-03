@@ -23,7 +23,7 @@ struct PunchTrackerScreen: View {
     @State var isTargetReached: Bool = false
     @State private var startScreenOpacity: Double = 1.0
     
-    private let targetPunches = 4
+    private let targetPunches = 10
     
     // Computed property to get punches data from motion manager
     private var punches: [Punches] {
@@ -42,6 +42,7 @@ struct PunchTrackerScreen: View {
             if !isGameStarted {
                 PunchTrackerStartScreen(isStartGame: $isGameStarted)
                     .opacity(isGameStarted ? 0 : 1)
+                    .tint(Color.white)
             } else {
                 VStack(spacing: 15) {
                     VStack(alignment: .center, spacing: 8) {
@@ -73,16 +74,16 @@ struct PunchTrackerScreen: View {
                         .environmentObject(alarmViewModel)
                 }
                 .navigationBarBackButtonHidden()
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button{
-                            motionManager.resetPunches()
-                        } label: {
-                            Text("Reset Punches")
-                                .foregroundStyle(.red)
-                        }
-                    }
-                }
+//                .toolbar {
+//                    ToolbarItem(placement: .topBarTrailing) {
+//                        Button{
+//                            motionManager.resetPunches()
+//                        } label: {
+//                            Text("Reset Punches")
+//                                .foregroundStyle(.red)
+//                        }
+//                    }
+//                }
                 .onChange(of: motionManager.punches.count) { oldValue, newValue in
                     if newValue >= targetPunches {
                         isTargetReached = true

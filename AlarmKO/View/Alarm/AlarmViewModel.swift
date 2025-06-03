@@ -107,7 +107,9 @@ class AlarmViewModel: ObservableObject {
     }
     
     var repeatDescription: String {
-        if selectedDays.count == 7 {
+        if selectedDays.count == 0 {
+            return "No repeat"
+        } else if selectedDays.count == 7 {
             return "Every day"
         } else if selectedDays.count == 5 && !selectedDays.contains(.saturday) && !selectedDays.contains(.sunday) {
             return "Weekdays"

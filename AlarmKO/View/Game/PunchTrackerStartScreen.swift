@@ -10,7 +10,7 @@ import SwiftUI
 struct PunchTrackerStartScreen: View {
     
     let punchAmount = Text("10").foregroundStyle(.prim)
-    let gAmount = Text("5").foregroundStyle(.prim)
+    let gAmount = Text("15g").foregroundStyle(.prim)
     
     @Binding var isStartGame: Bool
     
@@ -21,10 +21,10 @@ struct PunchTrackerStartScreen: View {
             HStack {
                 Image("AlarmKO Title")
                     .resizable()
-                    .scaledToFit()
+                    .scaledToFill()
                 
                 Spacer()
-                    .frame(width: 70)
+                    .frame(maxWidth: .infinity)
             }
             
             Spacer(minLength: 0)
@@ -46,7 +46,7 @@ struct PunchTrackerStartScreen: View {
                         Text("2")
                             .font(.title3.bold())
                             .foregroundStyle(.prim)
-                        Text("Each punch must hit at least \(gAmount)g force.")
+                        Text("Each punch must hit at least \(gAmount) force.")
                     }
                     HStack {
                         Text("3")

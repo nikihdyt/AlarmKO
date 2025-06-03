@@ -160,7 +160,7 @@ class AlarmManager: ObservableObject {
     }
     
     func startWhiteNoise() {
-        guard let url = Bundle.main.url(forResource: "white_noise", withExtension: "mp3") else {
+        guard let url = Bundle.main.url(forResource: "silent", withExtension: "wav") else {
             print("\(TAG) White noise file not found")
             return
         }

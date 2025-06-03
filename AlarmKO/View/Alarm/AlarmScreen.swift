@@ -92,17 +92,15 @@ struct AlarmScreen: View {
                             .tint(.prim)
                     }
                     .listStyle(InsetListStyle())
-                    .frame(minHeight: 150)
+                    .frame(minHeight: 140)
                     .clipShape(.rect(cornerRadius: 20))
                     .scrollDisabled(true)
                     
                     Text("Try the games out!")
                         .font(.title3)
                         .bold()
-                    
-                    Section {
-                        
-                    }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
@@ -125,62 +123,62 @@ struct AlarmScreen: View {
                         .padding(.horizontal, 20)
                     }
                     
-                    Section("Audio Status") {
-                        
-                        Text("\(watchData.bpm) BPM")
-                            .font(.system(size: 30, weight: .bold))
-                            .foregroundColor(.red)
-                        
-                        HStack {
-                            Text("White Noise:")
-                            Spacer()
-                            Text(alarmManager.isWhiteNoisePlaying ? "Playing" : "Stopped")
-                                .foregroundColor(alarmManager.isWhiteNoisePlaying ? .green : .gray)
-                        }
-                        
-                        HStack {
-                            Text("Alarm Sound:")
-                            Spacer()
-                            Text(alarmManager.isAlarmPlaying ? "Playing" : "Stopped")
-                                .foregroundColor(alarmManager.isAlarmPlaying ? .red : .gray)
-                        }
-                    }
-                    
-                    Section("Manual Controls") {
-                        Button("Test White Noise") {
-                            alarmManager.manualStartWhiteNoise()
-                        }
-                        .foregroundColor(.blue)
-                        
-                        Button("Test Alarm Sound") {
-                            alarmManager.manualStartAlarm()
-                        }
-                        .foregroundColor(.red)
-                        
-                        Button("Stop All Sounds") {
-                            alarmManager.stopAllSounds()
-                        }
-                        .foregroundColor(.orange)
-                    }
-                    
-                    Section("Debug") {
-                        Button("Print UserDefaults to Console") {
-                            printUserDefaults()
-                        }
-                        .foregroundColor(.blue)
-                        
-                        Button("Print Scheduled Notifications") {
-                            Task {
-                                await notificationManager.printScheduledNotifications()
-                            }
-                        }
-                        .foregroundColor(.blue)
-                        
-                        Button("Print Alarm Manager Status") {
-                            alarmManager.printCurrentStatus()
-                        }
-                        .foregroundColor(.blue)
-                    }
+//                    Section("Audio Status") {
+//                        
+//                        Text("\(watchData.bpm) BPM")
+//                            .font(.system(size: 30, weight: .bold))
+//                            .foregroundColor(.red)
+//                        
+//                        HStack {
+//                            Text("White Noise:")
+//                            Spacer()
+//                            Text(alarmManager.isWhiteNoisePlaying ? "Playing" : "Stopped")
+//                                .foregroundColor(alarmManager.isWhiteNoisePlaying ? .green : .gray)
+//                        }
+//                        
+//                        HStack {
+//                            Text("Alarm Sound:")
+//                            Spacer()
+//                            Text(alarmManager.isAlarmPlaying ? "Playing" : "Stopped")
+//                                .foregroundColor(alarmManager.isAlarmPlaying ? .red : .gray)
+//                        }
+//                    }
+//                    
+//                    Section("Manual Controls") {
+//                        Button("Test White Noise") {
+//                            alarmManager.manualStartWhiteNoise()
+//                        }
+//                        .foregroundColor(.blue)
+//                        
+//                        Button("Test Alarm Sound") {
+//                            alarmManager.manualStartAlarm()
+//                        }
+//                        .foregroundColor(.red)
+//                        
+//                        Button("Stop All Sounds") {
+//                            alarmManager.stopAllSounds()
+//                        }
+//                        .foregroundColor(.orange)
+//                    }
+//                    
+//                    Section("Debug") {
+//                        Button("Print UserDefaults to Console") {
+//                            printUserDefaults()
+//                        }
+//                        .foregroundColor(.blue)
+//                        
+//                        Button("Print Scheduled Notifications") {
+//                            Task {
+//                                await notificationManager.printScheduledNotifications()
+//                            }
+//                        }
+//                        .foregroundColor(.blue)
+//                        
+//                        Button("Print Alarm Manager Status") {
+//                            alarmManager.printCurrentStatus()
+//                        }
+//                        .foregroundColor(.blue)
+//                    }
                 }
                 .onAppear {
                     // Initialize date pickers with saved values
@@ -207,11 +205,11 @@ struct AlarmScreen: View {
                     if alarmViewModel.alarmGame.rawValue == "Punching Game" {
                         PunchTrackerScreen()
                             .environmentObject(alarmViewModel)
+                    } else if alarmViewModel.alarmGame.rawValue == "Heart Rate Game" {
+                        HeartRateGameScreen()
+                            .environmentObject(alarmViewModel)
                     } else if alarmViewModel.alarmGame.rawValue == "Leveler Game" {
                         LevelerGameScreen()
-                            .environmentObject(alarmViewModel)
-                    } else if alarmViewModel.alarmGame.rawValue == "HeartRate Game" {
-                        HeartRateGameScreen()
                             .environmentObject(alarmViewModel)
                     }
                 }

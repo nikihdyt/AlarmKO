@@ -90,6 +90,7 @@ struct TimePickerSheet: View {
                     .fontWeight(.semibold)
                 }
             }
+            .tint(Color.prim)
         }
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
