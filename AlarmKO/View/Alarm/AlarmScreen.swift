@@ -100,14 +100,27 @@ struct AlarmScreen: View {
                         .font(.title3)
                         .bold()
                     
+                    Section {
+                        
+                    }
+                    
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
-                            Image("Game1")
-                            Image("Game2")
-                            Image("Game1")
-                            Image("Game2")
-                            Image("Game1")
-                            Image("Game2")
+                            NavigationLink(destination: HeartRateGameScreen().environmentObject(alarmViewModel)) {
+                                Image("Game2")
+                            }
+                            NavigationLink(destination: PunchTrackerScreen().environmentObject(alarmViewModel)) {
+                                Image("Game1")
+                            }
+                            NavigationLink(destination: LevelerGameScreen().environmentObject(alarmViewModel)) {
+                                Text("Leveler Game")
+                                    .foregroundStyle(.black)
+                                    .padding(8)
+                                    .background {
+                                        Color("prim")
+                                    }
+                                    .clipShape(.rect(cornerRadius: 10))
+                            }
                         }
                         .padding(.horizontal, 20)
                     }
@@ -168,23 +181,6 @@ struct AlarmScreen: View {
                         }
                         .foregroundColor(.blue)
                     }
-                    
-                    
-                    Section("Testing") {
-                        NavigationLink(destination: HeartRateGameScreen()) {
-                            Text("Test Heart Rate Game")
-                                .foregroundColor(.blue)
-                        }
-                        
-                        NavigationLink(destination: PunchTrackerScreen()) {
-                            Text("Punching Game")
-                                .foregroundColor(.blue)
-                        }
-                        NavigationLink(destination: LevelerGameScreen()) {
-                            Text("Leveler Game")
-                                .foregroundColor(.blue)
-                        }
-                    }
                 }
                 .onAppear {
                     // Initialize date pickers with saved values
@@ -213,6 +209,9 @@ struct AlarmScreen: View {
                             .environmentObject(alarmViewModel)
                     } else if alarmViewModel.alarmGame.rawValue == "Leveler Game" {
                         LevelerGameScreen()
+                            .environmentObject(alarmViewModel)
+                    } else if alarmViewModel.alarmGame.rawValue == "HeartRate Game" {
+                        HeartRateGameScreen()
                             .environmentObject(alarmViewModel)
                     }
                 }

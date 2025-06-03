@@ -10,6 +10,7 @@ import Combine
 
 struct LevelerGameScreen: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var alarmViewModel: AlarmViewModel
     @StateObject private var motion = LevelerMotionManager()
     @StateObject private var gameState = GameState()
     @State private var collisionTimer: Timer?
@@ -45,6 +46,7 @@ struct LevelerGameScreen: View {
         .navigationBarBackButtonHidden()
         .navigationDestination(isPresented: $isTargetReached) {
             FinishedScreen()
+                .environmentObject(alarmViewModel)
         }
         .onChange(of: gameState.score) {
             oldValue, newValue in
