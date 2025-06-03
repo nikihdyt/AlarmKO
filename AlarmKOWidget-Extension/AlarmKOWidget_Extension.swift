@@ -97,7 +97,7 @@ struct AlarmKOWidget_ExtensionEntryView : View {
                             
                             Text("Wake Up at")
                                 .font(.system(size: 11, weight: .heavy))
-                            
+                                .foregroundColor(Color.black)
                         }
                         
                         HStack(alignment: .bottom, spacing: 4) {
@@ -105,17 +105,19 @@ struct AlarmKOWidget_ExtensionEntryView : View {
                                 .font(.system(size: 30, weight: .black))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
-                            
+                                .foregroundColor(Color.black)
                             
                             Text(periodPart)
                                 .font(.system(size: 12, weight: .semibold))
                                 .baselineOffset(6)
                                 .offset(x: 5, y: 0)
+                                .foregroundColor(Color.black)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         Text(" Punch to wake")
                             .font(.system(size: 12, weight: .regular))
                             .offset(x: -2, y: 0)
+                            .foregroundColor(Color.black.opacity(0.5))
                         
                     }
                     .padding()
@@ -154,9 +156,16 @@ struct AlarmKOWidget_ExtensionEntryView : View {
                                 .foregroundStyle(Color("PrimaryColor"))
                             
                             
-                            Text("Punch to wake up")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white)
+                            HStack(spacing: 0) {
+                                Text("Punch")
+                                    .foregroundStyle(Color("PrimaryColor"))
+                                    .font(.system(size: 12, weight: .regular))
+
+                                Text(" to wake")
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .font(.system(size: 12, weight: .regular))
+                            }
+                            .offset(x: -2, y: 0)
                         }
                         Spacer()
                         
