@@ -15,7 +15,7 @@ struct LevelerGameScreen: View {
     @StateObject private var gameState = GameState()
     @State private var collisionTimer: Timer?
     @State private var showingTutorial = true
-    private let targetPoints = 35
+    private let targetPoints = 10
     @State var isTargetReached: Bool = false
     @AppStorage("navState") private var navState: String = GameNavigationState.game.rawValue
     
@@ -57,10 +57,23 @@ struct LevelerGameScreen: View {
             }
             
         }
-        .onAppear {
-            if navState == GameNavigationState.home.rawValue {
-                dismiss()
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    dismiss()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .foregroundColor(.white)
+                }
             }
+        }
+        .onAppear {
+//            if navState == GameNavigationState.home.rawValue {
+//                dismiss()
+//            }
             // Improve motion manager update interval
             motion.updateInterval = 0.02 // Faster update rate (50Hz)
             gameState.startGame()

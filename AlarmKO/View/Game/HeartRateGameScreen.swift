@@ -16,7 +16,7 @@ struct HeartRateGameScreen: View {
     @State var isTargetReached: Bool = false
     @AppStorage("navState") private var navState: String = GameNavigationState.game.rawValue
     
-    private let targetHeartRate = 75
+    private let targetHeartRate = 110
     private let requiredDuration = 10
     
     var body: some View {
@@ -29,7 +29,7 @@ struct HeartRateGameScreen: View {
                 if gameState == .instruction {
                     instructionView
                 } else {
-                    gameView
+                    gameView()
                 }
             }
             .navigationBarBackButtonHidden()
@@ -125,7 +125,8 @@ struct HeartRateGameScreen: View {
         }
     }
     
-    private var gameView: some View {
+    @ViewBuilder
+    private func gameView() -> some View {
         VStack(spacing: 30) {
             // Header
             HStack {
